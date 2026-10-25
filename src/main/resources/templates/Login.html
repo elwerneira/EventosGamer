@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('Ingresar')}"></head>
+<body>
+<header th:replace="~{fragments :: nav}"></header>
+<main id="contenido" class="form-page">
+    <section class="form-intro"><p class="eyebrow">Continúa la partida</p><h1>Tu comunidad<br>te espera<span class="accent">.</span></h1><p>Inicia sesión para explorar los detalles de cada evento y personalizar tu perfil.</p><a class="text-link" th:href="@{/}">← Volver al inicio</a></section>
+    <section class="panel" aria-labelledby="login-title">
+        <p class="eyebrow">Bienvenido de vuelta</p><h2 id="login-title">Ingresar</h2>
+        <p th:if="${param.error}" class="message error" role="alert">Correo o contraseña incorrectos.</p>
+        <p th:if="${param.logout}" class="message" role="status">Cerraste sesión correctamente.</p>
+        <p th:if="${param.registered}" class="message" role="status">Cuenta creada. Ya puedes iniciar sesión.</p>
+        <form th:action="@{/login}" method="post" class="stack">
+            <div><label for="username">Correo electrónico</label><input id="username" name="username" type="email" autocomplete="username" required maxlength="254" placeholder="tu@correo.cl"></div>
+            <div><label for="password">Contraseña</label><input id="password" name="password" type="password" autocomplete="current-password" required></div>
+            <button class="button" type="submit">Entrar a GREEGAME →</button>
+        </form>
+        <p class="form-note">¿Primera vez aquí? <a th:href="@{/registro}">Crea tu cuenta</a></p>
+    </section>
+</main>
+<footer th:replace="~{fragments :: footer}"></footer>
+</body>
+</html>

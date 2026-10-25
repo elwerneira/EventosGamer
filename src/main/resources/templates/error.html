@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('Revisa tu ruta')}"></head>
+<body>
+<header th:replace="~{fragments :: nav}"></header>
+<main id="contenido" class="content-page empty">
+    <p class="eyebrow" th:text="'Error ' + ${status}"></p><h1>Fuera del mapa<span class="accent">.</span></h1>
+    <p>Esta solicitud no pudo completarse. Revisa la dirección o los datos e inténtalo nuevamente.</p><a class="button" th:href="@{/}">Volver al inicio →</a>
+</main>
+<footer th:replace="~{fragments :: footer}"></footer>
+</body>
+</html>

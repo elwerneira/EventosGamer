@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:fragment="head(title)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${title} + ' · GREEGAME'">GREEGAME</title>
+    <link rel="stylesheet" th:href="@{/login.css}">
+</head>
+<body>
+<header th:fragment="nav" class="site-header">
+    <a class="skip" href="#contenido">Saltar al contenido</a>
+    <a class="brand" th:href="@{/}"><span class="brand-mark" aria-hidden="true">G</span> GREEGAME<span class="brand-sub">EVENTOS</span></a>
+    <nav aria-label="Navegación principal">
+        <a th:href="@{/}">Inicio</a>
+        <a th:href="@{/eventos}">Explorar eventos</a>
+        <a sec:authorize="isAuthenticated()" th:href="@{/perfil}">Mi perfil</a>
+        <a sec:authorize="!isAuthenticated()" th:href="@{/login}">Ingresar</a>
+        <a sec:authorize="!isAuthenticated()" class="button small" th:href="@{/registro}">Unirme →</a>
+        <form sec:authorize="isAuthenticated()" th:action="@{/logout}" method="post">
+            <button type="submit" class="button outline small">Cerrar sesión</button>
+        </form>
+    </nav>
+</header>
+<footer th:fragment="footer" class="site-footer">
+    <span>GREEGAME <span aria-hidden="true">/</span> Encuentra a tu comunidad.</span>
+    <span>Proyecto académico · Eventos y marcas de demostración.</span>
+</footer>
+<article th:fragment="card(event)" class="event-card">
+    <div class="card-art" th:classappend="${event.category == 'Indie' ? 'indie' : (event.category == 'Retro' ? 'retro' : '')}" aria-hidden="true">
+        <span class="art-cross">+</span><span class="art-number" th:text="'0' + ${event.id}">01</span>
+        <span class="art-label" th:text="${event.category}">ESPORTS</span>
+    </div>
+    <div class="card-content">
+        <p class="eyebrow" th:text="${event.category}">Categoría</p>
+        <h3><a th:href="@{/eventos/{id}(id=${event.id})}" th:text="${event.title}">Evento</a></h3>
+        <p><time th:datetime="${event.startsAt}" th:text="${#temporals.format(event.startsAt, 'dd/MM/yyyy · HH:mm')}"></time></p>
+        <p class="muted" th:text="${event.location}">Ubicación</p>
+        <a class="text-link" th:href="@{/eventos/{id}(id=${event.id})}">Ver evento <span aria-hidden="true">↗</span></a>
+    </div>
+</article>
+</body>
+</html>

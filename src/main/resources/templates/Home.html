@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('Tu próximo punto de encuentro')}"></head>
+<body>
+<header th:replace="~{fragments :: nav}"></header>
+<main id="contenido">
+    <section class="hero">
+        <div>
+            <p class="eyebrow"><span class="live-dot" aria-hidden="true"></span> Tu comunidad, fuera de la pantalla</p>
+            <h1>La próxima<br>partida es<br><span>en persona.</span></h1>
+            <p class="hero-copy">Torneos, mundos indie y clásicos de siempre. Descubre dónde se reúne la comunidad gamer y encuentra tu próximo evento.</p>
+            <div class="actions"><a class="button" th:href="@{/eventos}">Explorar eventos ↗</a><a class="button outline" th:href="@{/registro}">Crear mi cuenta</a></div>
+            <p class="hero-note">Esports <span>/</span> Indie <span>/</span> Retro</p>
+        </div>
+        <div class="arena" aria-hidden="true">
+            <div class="arena-top"><span>PRÓXIMA CONEXIÓN</span><span>CL / 2026</span></div>
+            <div class="arena-orbit"><span class="arena-n">G</span></div>
+            <div class="arena-bottom"><span>ONLINE → EN PERSONA</span><span>PLAY TOGETHER.</span></div>
+        </div>
+    </section>
+    <section class="section" aria-labelledby="destacados">
+        <div class="section-heading"><div><p class="eyebrow">No te los pierdas</p><h2 id="destacados">En el radar<span class="accent">.</span></h2></div><span class="muted">Selección destacada</span></div>
+        <div class="cards featured"><th:block th:each="event : ${featured}"><article th:replace="~{fragments :: card(${event})}"></article></th:block></div>
+        <p th:if="${#lists.isEmpty(featured)}" class="empty">Pronto anunciaremos nuevos destacados.</p>
+    </section>
+    <section class="section" aria-labelledby="proximos">
+        <div class="section-heading"><div><p class="eyebrow">Reserva la fecha</p><h2 id="proximos">Lo que viene<span class="accent">.</span></h2></div><a class="text-link" th:href="@{/eventos}">Buscar eventos ↗</a></div>
+        <a th:each="event : ${events}" class="event-row" th:href="@{/eventos/{id}(id=${event.id})}">
+            <time th:datetime="${event.startsAt}" th:text="${#temporals.format(event.startsAt, 'dd/MM/yyyy')}"></time>
+            <strong th:text="${event.title}"></strong><span th:text="${event.category}"></span><span th:text="${event.location}"></span><span aria-hidden="true">↗</span>
+        </a>
+        <p th:if="${#lists.isEmpty(events)}" class="empty">Aún no hay próximos eventos. Vuelve pronto.</p>
+    </section>
+    <section class="section partners" aria-labelledby="marcas">
+        <p class="eyebrow" id="marcas">Espacio de marcas asociadas · Publicidad de demostración</p>
+        <div class="partner-grid"><div><strong>VECTOR<span>®</span></strong><p>Equípate para tu próxima partida.</p></div><div><strong>RESPAWN<span>+</span></strong><p>Energía para seguir conectando.</p></div><div><strong>PIXEL LAB<span>_</span></strong><p>Ideas que se convierten en mundos.</p></div></div>
+    </section>
+</main>
+<footer th:replace="~{fragments :: footer}"></footer>
+</body>
+</html>

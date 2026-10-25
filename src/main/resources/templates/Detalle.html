@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head(${event.title})}"></head>
+<body>
+<header th:replace="~{fragments :: nav}"></header>
+<main id="contenido" class="content-page">
+    <a class="text-link" th:href="@{/eventos}">← Todos los eventos</a>
+    <div class="detail-heading"><div><p class="eyebrow" th:text="${event.category}"></p><h1 th:text="${event.title}"></h1><p class="muted" th:text="${event.location}"></p></div><span class="detail-symbol" aria-hidden="true">↗</span></div>
+    <div class="detail-grid">
+        <section><h2>El encuentro</h2><p class="description" th:text="${event.description}"></p><h2>Quiénes estarán</h2><h3>Organizadores</h3><p th:text="${event.organizers}"></p><h3>Principales expositores</h3><p th:text="${event.exhibitors}"></p></section>
+        <section class="panel"><p class="eyebrow">Antes de salir</p><h2>Planifica tu visita</h2><dl class="details"><dt>Fecha y hora</dt><dd><time th:datetime="${event.startsAt}" th:text="${#temporals.format(event.startsAt, 'dd/MM/yyyy · HH:mm')}"></time></dd><dt>Ubicación</dt><dd th:text="${event.location}"></dd><dt>Dirección</dt><dd th:text="${event.address}"></dd><dt>Estacionamiento</dt><dd th:text="${event.parking}"></dd><dt>Locomoción colectiva</dt><dd th:text="${event.transport}"></dd><dt>Comidas</dt><dd th:text="${event.food}"></dd><dt>Alojamiento</dt><dd th:text="${event.accommodation}"></dd></dl></section>
+    </div>
+</main>
+<footer th:replace="~{fragments :: footer}"></footer>
+</body>
+</html>

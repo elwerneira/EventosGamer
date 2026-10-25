@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('Crear cuenta')}"></head>
+<body>
+<header th:replace="~{fragments :: nav}"></header>
+<main id="contenido" class="form-page">
+    <section class="form-intro"><p class="eyebrow">Aquí empieza tu próxima aventura</p><h1>Encuentra<br>a tu equipo<span class="accent">.</span></h1><p>Crea tu cuenta, elige tus juegos favoritos y descubre encuentros que van contigo.</p><a class="text-link" th:href="@{/}">← Volver al inicio</a></section>
+    <section class="panel" aria-labelledby="register-title">
+        <p class="eyebrow">Un nuevo jugador</p><h2 id="register-title">Crear cuenta</h2>
+        <form th:action="@{/registro}" th:object="${form}" method="post" class="stack">
+            <div th:if="${#fields.hasAnyErrors()}" class="message error" role="alert"><p>Revisa los siguientes datos:</p><ul><li th:each="error : ${#fields.allErrors()}" th:text="${error}"></li></ul></div>
+            <div><label for="name">Nombre</label><input id="name" th:field="*{name}" autocomplete="name" required maxlength="80" th:attr="aria-invalid=${#fields.hasErrors('name')}"></div>
+            <div><label for="email">Correo electrónico</label><input id="email" th:field="*{email}" type="email" autocomplete="username" required maxlength="254" th:attr="aria-invalid=${#fields.hasErrors('email')}"></div>
+            <div><label for="password">Contraseña</label><input id="password" name="password" type="password" autocomplete="new-password" required minlength="10" maxlength="64" aria-describedby="password-help" th:attr="aria-invalid=${#fields.hasErrors('password')}"><p id="password-help" class="hint">Entre 10 y 64 caracteres; hasta 72 bytes si usas símbolos o emojis.</p></div>
+            <button class="button" type="submit">Crear mi cuenta →</button>
+        </form>
+        <p class="form-note">¿Ya eres parte? <a th:href="@{/login}">Inicia sesión</a></p>
+    </section>
+</main>
+<footer th:replace="~{fragments :: footer}"></footer>
+</body>
+</html>
