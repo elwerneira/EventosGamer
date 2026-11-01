@@ -4,59 +4,69 @@ import java.util.Locale;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class AccountService implements UserDetailsService, ApplicationRunner {
-    private final JdbcTemplate jdbc;
+    private final AccountRepository accounts;
     private final PasswordEncoder encoder;
     private final String demoPassword;
+    private final AccountRoleRepository roles;
 
-    public AccountService(JdbcTemplate jdbc, PasswordEncoder encoder,
+    public AccountService(AccountRepository accounts, PasswordEncoder encoder, AccountRoleRepository roles,
             @Value("${EVENTOS_DEMO_PASSWORD:GamerDemo2026!}") String demoPassword) {
-        this.jdbc = jdbc;
+        this.accounts = accounts;
         this.encoder = encoder;
         this.demoPassword = demoPassword;
+        this.roles = roles;
     }
 
     @Override
     public UserDetails loadUserByUsername(String email) {
-        return jdbc.query("SELECT email, password_hash FROM accounts WHERE email = ?",
-                (rs, row) -> User.withUsername(rs.getString("email"))
-                    .password(rs.getString("password_hash")).roles("USER").build(),
-                email.trim().toLowerCase(Locale.ROOT)).stream().findFirst()
+        return accounts.findById(email.trim().toLowerCase(Locale.ROOT))
+            .map(account -> User.withUsername(account.email).password(account.passwordHash)
+                .roles(roles.findById(account.email).map(authority -> authority.role.name()).orElse("USER")).build())
             .orElseThrow(() -> new UsernameNotFoundException("Credenciales inválidas."));
     }
 
+    @Transactional
     public void register(RegistrationForm form) {
-        jdbc.update("INSERT INTO accounts (email, name, password_hash, display_name) VALUES (?, ?, ?, ?)",
-                form.email(), form.name(), encoder.encode(form.password()),
-                form.name().substring(0, Math.min(40, form.name().length())));
+        accounts.saveAndFlush(new Account(form, encoder.encode(form.password())));
+        roles.save(new AccountRole(form.email(), AccountRole.Role.USER));
     }
 
     public ProfileForm profile(String email) {
-        return jdbc.queryForObject("SELECT display_name, games, avatar, notifications FROM accounts WHERE email = ?",
-                (rs, row) -> new ProfileForm(rs.getString("display_name"), rs.getString("games"),
-                    rs.getString("avatar"), rs.getBoolean("notifications")), email);
+        Account account = accounts.findById(email)
+            .orElseThrow(() -> new UsernameNotFoundException("Cuenta no encontrada."));
+        return new ProfileForm(account.displayName, account.games, account.avatar, account.notifications);
     }
 
+    @Transactional
     public void updateProfile(String email, ProfileForm form) {
-        jdbc.update("UPDATE accounts SET display_name = ?, games = ?, avatar = ?, notifications = ? WHERE email = ?",
-                form.displayName(), form.games(), form.avatar(), form.notifications(), email);
+        Account account = accounts.findById(email)
+            .orElseThrow(() -> new UsernameNotFoundException("Cuenta no encontrada."));
+        account.displayName = form.displayName();
+        account.games = form.games();
+        account.avatar = form.avatar();
+        account.notifications = form.notifications();
     }
 
     @Override
     public void run(ApplicationArguments args) {
         for (int i = 1; i <= 3; i++) {
             String email = "player" + i + "@eventos.test";
-            if (jdbc.queryForObject("SELECT COUNT(*) FROM accounts WHERE email = ?", Integer.class, email) == 0) {
+            boolean newAccount = !accounts.existsById(email);
+            if (newAccount) {
                 register(new RegistrationForm("Jugador " + i, email, demoPassword));
+            }
+            if (newAccount || !roles.existsById(email)) {
+                roles.save(new AccountRole(email, i == 1 ? AccountRole.Role.ADMIN : AccountRole.Role.USER));
             }
         }
     }

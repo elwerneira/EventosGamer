@@ -19,12 +19,12 @@
         </div>
     </section>
     <section class="section" aria-labelledby="destacados">
-        <div class="section-heading"><div><p class="eyebrow">No te los pierdas</p><h2 id="destacados">En el radar<span class="accent">.</span></h2></div><span class="muted">Selección destacada</span></div>
+        <div class="section-heading"><div><p class="eyebrow">Populares en la comunidad</p><h2 id="destacados">En el radar<span class="accent">.</span></h2></div><span class="muted">Selección de demostración</span></div>
         <div class="cards featured"><th:block th:each="event : ${featured}"><article th:replace="~{fragments :: card(${event})}"></article></th:block></div>
         <p th:if="${#lists.isEmpty(featured)}" class="empty">Pronto anunciaremos nuevos destacados.</p>
     </section>
     <section class="section" aria-labelledby="proximos">
-        <div class="section-heading"><div><p class="eyebrow">Reserva la fecha</p><h2 id="proximos">Lo que viene<span class="accent">.</span></h2></div><a class="text-link" th:href="@{/eventos}">Buscar eventos ↗</a></div>
+        <div class="section-heading"><div><p class="eyebrow">Publicados recientemente</p><h2 id="proximos">Lo que viene<span class="accent">.</span></h2></div><a class="text-link" th:href="@{/eventos}">Buscar eventos ↗</a></div>
         <a th:each="event : ${events}" class="event-row" th:href="@{/eventos/{id}(id=${event.id})}">
             <time th:datetime="${event.startsAt}" th:text="${#temporals.format(event.startsAt, 'dd/MM/yyyy')}"></time>
             <strong th:text="${event.title}"></strong><span th:text="${event.category}"></span><span th:text="${event.location}"></span><span aria-hidden="true">↗</span>

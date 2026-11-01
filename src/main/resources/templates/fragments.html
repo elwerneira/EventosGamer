@@ -35,6 +35,7 @@
         <h3><a th:href="@{/eventos/{id}(id=${event.id})}" th:text="${event.title}">Evento</a></h3>
         <p><time th:datetime="${event.startsAt}" th:text="${#temporals.format(event.startsAt, 'dd/MM/yyyy · HH:mm')}"></time></p>
         <p class="muted" th:text="${event.location}">Ubicación</p>
+        <p class="hint" th:text="${event.videoGame} + ' · ' + ${event.modality} + ' · ' + ${event.country}"></p>
         <a class="text-link" th:href="@{/eventos/{id}(id=${event.id})}">Ver evento <span aria-hidden="true">↗</span></a>
     </div>
 </article>

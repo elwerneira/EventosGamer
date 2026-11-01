@@ -21,15 +21,24 @@ public class EventController {
     @GetMapping("/eventos")
     public String list(@RequestParam(required = false) String category,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
-            @RequestParam(required = false) String location, Model model) {
+            @RequestParam(required = false) String location,
+            @RequestParam(required = false) String name, @RequestParam(required = false) String videoGame,
+            @RequestParam(required = false) String country, @RequestParam(required = false) String modality, Model model) {
         category = category == null || category.isBlank() ? null : category;
         location = location == null || location.isBlank() ? null : location;
-        model.addAttribute("events", events.search(category, date, location));
+        model.addAttribute("events", events.search(category, date, location, name, videoGame, country, modality)
+            .stream().map(Event::summary).toList());
         model.addAttribute("categories", events.categories());
         model.addAttribute("locations", events.locations());
         model.addAttribute("category", category);
         model.addAttribute("date", date);
         model.addAttribute("location", location);
+        model.addAttribute("videoGames", events.videoGames());
+        model.addAttribute("countries", events.countries());
+        model.addAttribute("name", name);
+        model.addAttribute("videoGame", videoGame);
+        model.addAttribute("country", country);
+        model.addAttribute("modality", modality);
         return "Eventos";
     }
 

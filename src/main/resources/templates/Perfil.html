@@ -8,6 +8,7 @@
         <p class="eyebrow">Tu identidad en GREEGAME</p><h1>Juega<br>a tu manera<span class="accent">.</span></h1>
         <div class="profile-preview"><span class="avatar" th:switch="${form.avatar}" aria-label="Avatar seleccionado"><span th:case="'mago'">✦</span><span th:case="'piloto'">➤</span><span th:case="'guerrero'">◆</span><span th:case="*">◎</span></span><div><strong th:text="${form.displayName}"></strong><p class="muted" th:text="${#authentication.name}"></p></div></div>
         <p>Elige tu avatar y cuéntanos qué juegos te gustan.</p>
+        <p class="eyebrow" th:if="${#authorization.expression('hasRole(''ADMIN'')')}">Administrador · GREEGAME</p>
     </section>
     <section class="panel" aria-labelledby="profile-title">
         <h2 id="profile-title">Mi perfil</h2><p th:if="${param.saved}" class="message" role="status">Tu perfil se guardó correctamente.</p>

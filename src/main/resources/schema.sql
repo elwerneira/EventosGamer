@@ -24,3 +24,32 @@ CREATE TABLE IF NOT EXISTS events (
     exhibitors VARCHAR(300) NOT NULL,
     featured BOOLEAN NOT NULL DEFAULT FALSE
 );
+CREATE TABLE IF NOT EXISTS account_roles (
+    email VARCHAR(254) PRIMARY KEY,
+    role VARCHAR(10) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS event_details (
+    event_id BIGINT PRIMARY KEY,
+    video_game VARCHAR(100) NOT NULL,
+    country VARCHAR(80) NOT NULL,
+    modality VARCHAR(15) NOT NULL,
+    access_url VARCHAR(300) NOT NULL,
+    requirements VARCHAR(1000) NOT NULL,
+    registration_info VARCHAR(1000) NOT NULL,
+    published_at TIMESTAMP NOT NULL,
+    popular BOOLEAN NOT NULL DEFAULT FALSE,
+    FOREIGN KEY (event_id) REFERENCES events(id)
+);
+
+CREATE TABLE IF NOT EXISTS event_photos (
+    event_id BIGINT NOT NULL,
+    photo_order INTEGER NOT NULL,
+    filename VARCHAR(80) NOT NULL,
+    alt VARCHAR(200) NOT NULL,
+    credit VARCHAR(200) NOT NULL,
+    source_url VARCHAR(400) NOT NULL,
+    license_url VARCHAR(120) NOT NULL,
+    PRIMARY KEY (event_id, photo_order),
+    FOREIGN KEY (event_id) REFERENCES event_details(event_id)
+);

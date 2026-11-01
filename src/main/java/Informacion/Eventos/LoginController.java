@@ -3,7 +3,7 @@ package Informacion.Eventos;
 import jakarta.validation.Valid;
 import java.nio.charset.StandardCharsets;
 import java.security.Principal;
-import org.springframework.dao.DuplicateKeyException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -41,7 +41,7 @@ public class LoginController {
             try {
                 accounts.register(form);
                 return "redirect:/login?registered";
-            } catch (DuplicateKeyException exception) {
+            } catch (DataIntegrityViolationException exception) {
                 errors.rejectValue("email", "duplicate", "No se pudo registrar ese correo. Usa otro o inicia sesión.");
             }
         }

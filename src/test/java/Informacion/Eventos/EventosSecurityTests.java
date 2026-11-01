@@ -28,10 +28,11 @@ class EventosSecurityTests {
     @Autowired JdbcTemplate jdbc;
     @Autowired PasswordEncoder encoder;
     @Autowired EventRepository events;
+    @Autowired AccountService accounts;
 
     @Test
     void publicPagesAndCssAreAccessible() throws Exception {
-        for (String path : new String[]{"/", "/home", "/login", "/registro", "/login.css"}) {
+        for (String path : new String[]{"/", "/home", "/login", "/registro", "/login.css", "/eventos"}) {
             mvc.perform(get(path)).andExpect(status().isOk());
         }
         mvc.perform(get("/")).andExpect(content().string(containsString("En el radar")))
@@ -48,7 +49,7 @@ class EventosSecurityTests {
 
     @Test
     void anonymousUsersCannotAccessPrivatePagesOrUnlistedRoutes() throws Exception {
-        for (String path : new String[]{"/perfil", "/eventos", "/eventos/1", "/schema.sql", "/data/eventos.mv.db"}) {
+        for (String path : new String[]{"/perfil", "/eventos/1", "/eventos/fotos/torneo-esports.jpg", "/schema.sql", "/data/eventos.mv.db"}) {
             mvc.perform(get(path)).andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/login"));
         }
@@ -64,6 +65,16 @@ class EventosSecurityTests {
             assertThat(hash).startsWith("$2").isNotEqualTo("GamerDemo2026!");
             assertThat(encoder.matches("GamerDemo2026!", hash)).isTrue();
         }
+    }
+
+    @Test
+    void demoInitializationPreservesExistingProfilesAndPasswords() {
+        String email = "player2@eventos.test";
+        String hash = jdbc.queryForObject("SELECT password_hash FROM accounts WHERE email = ?", String.class, email);
+        accounts.updateProfile(email, new ProfileForm("Jugador persistente", "Minecraft", "piloto", true));
+        accounts.run(null);
+        assertThat(accounts.profile(email)).isEqualTo(new ProfileForm("Jugador persistente", "Minecraft", "piloto", true));
+        assertThat(jdbc.queryForObject("SELECT password_hash FROM accounts WHERE email = ?", String.class, email)).isEqualTo(hash);
     }
 
     @Test

@@ -10,6 +10,20 @@
         <section><h2>El encuentro</h2><p class="description" th:text="${event.description}"></p><h2>Quiénes estarán</h2><h3>Organizadores</h3><p th:text="${event.organizers}"></p><h3>Principales expositores</h3><p th:text="${event.exhibitors}"></p></section>
         <section class="panel"><p class="eyebrow">Antes de salir</p><h2>Planifica tu visita</h2><dl class="details"><dt>Fecha y hora</dt><dd><time th:datetime="${event.startsAt}" th:text="${#temporals.format(event.startsAt, 'dd/MM/yyyy · HH:mm')}"></time></dd><dt>Ubicación</dt><dd th:text="${event.location}"></dd><dt>Dirección</dt><dd th:text="${event.address}"></dd><dt>Estacionamiento</dt><dd th:text="${event.parking}"></dd><dt>Locomoción colectiva</dt><dd th:text="${event.transport}"></dd><dt>Comidas</dt><dd th:text="${event.food}"></dd><dt>Alojamiento</dt><dd th:text="${event.accommodation}"></dd></dl></section>
     </div>
+    <section class="section" aria-labelledby="participar">
+        <h2 id="participar">Prepara tu partida</h2>
+        <dl class="details"><dt>Videojuego</dt><dd th:text="${event.videoGame}"></dd><dt>Modalidad</dt><dd th:text="${event.modality}"></dd><dt>País</dt><dd th:text="${event.country}"></dd><dt>Requisitos de participación</dt><dd th:text="${event.requirements}"></dd><dt>Información de inscripción</dt><dd th:text="${event.registrationInfo}"></dd></dl>
+        <p th:if="${event.modality == 'Online' and !#strings.isEmpty(event.accessUrl)}" class="message">Enlace de acceso de demostración: <a th:href="${event.accessUrl}" rel="noopener noreferrer" th:text="${event.accessUrl}"></a></p>
+    </section>
+    <section class="section" aria-labelledby="fotografias">
+        <h2 id="fotografias">Fotografías</h2>
+        <p class="muted">Imágenes ilustrativas de encuentros gamer reales; los eventos de GREEGAME son ficticios.</p>
+        <div class="photo-gallery"><figure th:each="photo : ${event.photos}">
+            <img th:src="@{/eventos/fotos/{filename}(filename=${photo.filename})}" th:alt="${photo.alt}" loading="lazy" width="960" height="640">
+            <figcaption><span th:text="${photo.credit}"></span> · <a th:href="${photo.sourceUrl}" rel="noopener noreferrer">Fuente</a> · <a th:href="${photo.licenseUrl}" rel="noopener noreferrer">Licencia</a></figcaption>
+        </figure></div>
+        <p th:if="${#lists.isEmpty(event.photos)}" class="muted">La organización aún no ha publicado fotografías.</p>
+    </section>
 </main>
 <footer th:replace="~{fragments :: footer}"></footer>
 </body>

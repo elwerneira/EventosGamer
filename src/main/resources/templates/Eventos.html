@@ -4,14 +4,19 @@
 <body>
 <header th:replace="~{fragments :: nav}"></header>
 <main id="contenido" class="content-page">
-    <div class="page-heading"><p class="eyebrow">Elige tu próximo encuentro</p><h1>Tu próxima<br>conexión<span class="accent">.</span></h1><p class="muted">Busca por categoría, fecha y ciudad. Nos vemos en la próxima partida.</p></div>
+    <div class="page-heading"><p class="eyebrow">Elige tu próximo encuentro</p><h1>Tu próxima<br>conexión<span class="accent">.</span></h1><p class="muted">Encuentra eventos por nombre, videojuego, categoría, país, ciudad, fecha y modalidad.</p></div>
     <form class="filters" th:action="@{/eventos}" method="get" aria-label="Filtrar eventos">
+        <div><label for="name">Nombre del evento</label><input id="name" name="name" type="search" maxlength="120" placeholder="Por ejemplo: Arena" th:value="${name}"></div>
+        <div><label for="videoGame">Videojuego</label><select id="videoGame" name="videoGame"><option value="">Todos los videojuegos</option><option th:each="item : ${videoGames}" th:value="${item}" th:text="${item}" th:selected="${item == videoGame}"></option></select></div>
         <div><label for="category">Categoría</label><select id="category" name="category"><option value="">Todas las categorías</option><option th:each="item : ${categories}" th:value="${item}" th:text="${item}" th:selected="${item == category}"></option></select></div>
+        <div><label for="country">País</label><select id="country" name="country"><option value="">Todos los países</option><option th:each="item : ${countries}" th:value="${item}" th:text="${item}" th:selected="${item == country}"></option></select></div>
         <div><label for="date">Fecha</label><input id="date" name="date" type="date" th:value="${date}"></div>
-        <div><label for="location">Ubicación</label><select id="location" name="location"><option value="">Todas las ciudades</option><option th:each="item : ${locations}" th:value="${item}" th:text="${item}" th:selected="${item == location}"></option></select></div>
+        <div><label for="location">Ciudad</label><select id="location" name="location"><option value="">Todas las ciudades</option><option th:each="item : ${locations}" th:value="${item}" th:text="${item}" th:selected="${item == location}"></option></select></div>
+        <div><label for="modality">Modalidad</label><select id="modality" name="modality"><option value="">Todas las modalidades</option><option value="Presencial" th:selected="${modality == 'Presencial'}">Presencial</option><option value="Online" th:selected="${modality == 'Online'}">Online</option></select></div>
         <button class="button" type="submit">Buscar ↗</button><a th:href="@{/eventos}">Limpiar filtros</a>
     </form>
     <p class="result-count" role="status" th:text="${#lists.size(events)} + ' evento(s) encontrado(s)'"></p>
+    <p class="hint">Explora los resúmenes libremente. Inicia sesión para ver los detalles y fotografías.</p>
     <div class="cards"><th:block th:each="event : ${events}"><article th:replace="~{fragments :: card(${event})}"></article></th:block></div>
     <div th:if="${#lists.isEmpty(events)}" class="empty"><h2>No hay coincidencias</h2><p>Prueba con otra fecha, categoría o ubicación.</p><a class="text-link" th:href="@{/eventos}">Ver todos los eventos →</a></div>
 </main>
