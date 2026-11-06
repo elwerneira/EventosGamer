@@ -24,8 +24,6 @@ Se verificaron 29 solicitudes web y 23 API por versión: **104 solicitudes expl�
 
 Los avisos informativos se conservaron, incluido el potencial XSS de baja confianza. No se ejecutaron ataques activos. Estos resultados no certifican ausencia absoluta de vulnerabilidades; el informe relaciona los hallazgos y las pruebas con las diez categorías OWASP de la edición 2021.
 
-Las **36 pruebas H2** se repitieron el 5 de noviembre sin fallos ni errores. Se conservan como antecedentes del 4 de noviembre las 36 pruebas MySQL y Newman con 10 solicitudes y 47 comprobaciones; no se presentan como nuevas ejecuciones. Las capturas de ZAP de escritorio ilustran su configuración y la alerta CSP; sus conteos no se mezclan con los de la comparación en Docker, que usa otro conjunto de complementos.
-
 ### HTTPS local
 
 Para iniciar MySQL y la aplicación con el perfil HTTPS, en una terminal dentro de `Eventos`:
@@ -42,43 +40,6 @@ curl.exe --cacert .\data\tls\greegame-local.pem https://localhost:8443/
 
 El script conserva o genera el certificado de laboratorio bajo `data/tls`, configura TLS 1.2/1.3 y activa la cookie Secure. El certificado es autofirmado y no acredita confianza pública. Las claves privadas y contraseñas locales no se incluyen en Git ni en los paquetes de entrega.
 
-### Informe y paquete de entrega
-
-Los documentos se guardan **fuera del repositorio**, en la carpeta local del curso `Semana 3/Entrega_GREEGAME/Revision_20261105`, junto a la carpeta `Eventos` dentro de `Seguridad y Calidad de Software`.
-
-- `GREEGAME_S3_Informe_Elwer_Neira_v3.docx`: 15 páginas y nueve figuras, con reportes ampliados, configuración de ZAP, detalle de CSP y banners.
-- `GREEGAME_S3_Entrega_Elwer_Neira_v3.zip`: fuente, SQL, informe, guion, colección Postman y evidencias; incluye manifiesto SHA-256.
-- `GREEGAME_S3_Guion_Video_Individual_v3.md`: apoyo para la grabación individual.
-- `LEEME_ENTREGA_ACTUAL_v3.md`: alcance, fechas de las comprobaciones y reproducción del laboratorio.
-
-Las versiones anteriores permanecen conservadas. El ZIP v3 es una instantánea de la revisión de seguridad; los cambios posteriores del repositorio, incluida esta actualización del README, requieren generar otra versión del paquete si se desean incorporar al comprimido.
-
-## Base funcional de la semana 2
-
-Aplicación de eventos gamer para la semana 2: Spring Data JPA y MySQL, login API con JWT, roles ADMIN/USER, búsqueda pública y detalles privados con fotografías.
-
-## Arranque recomendado con MySQL en Docker
-
-Abre Docker Desktop y una terminal PowerShell en la carpeta `Eventos`. Ejecuta:
-
-```powershell
-.\scripts\start-local.ps1
-```
-
-El script crea `.env` con contraseñas aleatorias si no existe, inicia el contenedor MySQL, espera a que acepte consultas y arranca Spring Boot con Maven. GREEGAME continúa ejecutándose en tu equipo; el contenedor aloja únicamente MySQL. Abre <http://localhost:8080/>.
-
-El arranque recomendado limita también la aplicación a `127.0.0.1`. La base del contenedor y la instancia manual son independientes: los cambios nuevos no se sincronizan entre ambas. Para trabajar con los datos activos de Docker utiliza este arranque.
-
-Para iniciar solo la base y cargar la conexión en esa terminal:
-
-```powershell
-.\scripts\start-mysql.ps1
-.\mvnw.cmd spring-boot:run
-```
-
-`compose.yaml` usa la imagen oficial `mysql:8.4.13`, acceso limitado a `127.0.0.1:3307` y el volumen persistente `greegame_mysql-data`. El puerto 3307 evita interferir con la instancia manual anterior del puerto 3306. La zona horaria del contenedor es `America/Santiago` para conservar los horarios de eventos. `.env` contiene las credenciales reales y queda excluido de Git; `.env.example` documenta las variables sin incluir secretos.
-
-Los comandos de conexión manual de la siguiente sección son una alternativa para una instancia MySQL instalada fuera de Docker. Para trabajar con el contenedor usa el script recomendado, que configura el puerto 3307.
 
 ## Cuentas de demostración
 
@@ -90,7 +51,7 @@ Los comandos de conexión manual de la siguiente sección son una alternativa pa
 
 Se crean únicamente cuando no existen. El registro permite crear cuentas adicionales con nombre, correo y contraseña. Las cuentas y sus perfiles persisten al reiniciar. Los usuarios de ejemplo se guardan también con BCrypt, no con contraseñas en texto plano en la base.
 
-Antes del primer inicio puedes definir `EVENTOS_DEMO_PASSWORD` para usar otra contraseña en las tres cuentas de demostración. Cambiar esta variable después no modifica cuentas ya creadas. El registro exige entre 10 y 64 caracteres y un máximo de 72 bytes por el límite de BCrypt. El correo se normaliza a minúsculas y debe ser único.
+El registro exige entre 10 y 64 caracteres y un máximo de 72 bytes por el límite de BCrypt. El correo se normaliza a minúsculas y debe ser único.
 
 ## Rutas y controles
 
@@ -135,8 +96,6 @@ Las pruebas habituales usan H2 en memoria con JPA. Para comprobar el motor MySQL
 ```
 
 El conjunto registra cuentas y edita perfiles de demostración. No reutilizar una base con datos de usuarios para esta comprobación.
-
-## Referencias técnicas
 
 ## API JWT (Semana 2)
 
