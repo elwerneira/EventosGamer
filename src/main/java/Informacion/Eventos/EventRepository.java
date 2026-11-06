@@ -5,6 +5,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.stereotype.Repository;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
 @Repository
 public class EventRepository {
@@ -20,6 +22,9 @@ public class EventRepository {
 
     public List<Event> search(String category, LocalDate date, String location,
             String name, String videoGame, String country, String modality) {
+        if (date != null && (date.getYear() < 1900 || date.getYear() > 2100)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
         return events.search(clean(category), date == null ? null : date.atStartOfDay(),
                 date == null ? null : date.plusDays(1).atStartOfDay(), clean(location), LocalDateTime.now(),
                 clean(name), clean(videoGame), clean(country), clean(modality))
@@ -27,6 +32,7 @@ public class EventRepository {
     }
 
     private static String clean(String value) {
+        if (value != null && value.length() > 254) throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         return value == null || value.isBlank() ? null : value.trim();
     }
 
