@@ -1,6 +1,7 @@
 package Informacion.Eventos;
 
 import jakarta.servlet.DispatcherType;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -48,11 +49,12 @@ public class WebSecurityCongig {
     SecurityFilterChain apiFilterChain(HttpSecurity http, JwtService jwt, AccountService accounts) throws Exception {
         securityHeaders(http);
         return http.securityMatcher("/api/**")
-            // La API solo admite Bearer explícito; las cookies de sesión no la autentican.
-            .csrf(csrf -> csrf.ignoringRequestMatchers("/api/**"))
+            // CSRF usa su propia cookie; la autenticación de la API sigue exigiendo Bearer.
+            .csrf(csrf -> csrf.csrfTokenRepository(new CookieCsrfTokenRepository()))
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .requestCache(cache -> cache.disable())
             .authorizeHttpRequests(requests -> requests
+                .requestMatchers(HttpMethod.GET, "/api/csrf").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/eventos").permitAll()
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")

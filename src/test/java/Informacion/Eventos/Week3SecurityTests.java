@@ -1,6 +1,7 @@
 package Informacion.Eventos;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import java.time.*;
@@ -70,7 +71,7 @@ class Week3SecurityTests {
     }
 
     @Test void authenticationFailuresAreLoggedWithoutPasswordsOrTokens(CapturedOutput output) throws Exception {
-        mvc.perform(post("/api/auth/login").contentType("application/json")
+        mvc.perform(post("/api/auth/login").with(csrf().asHeader()).contentType("application/json")
             .content("{\"email\":\"player2@eventos.test\",\"password\":\"NoDebeAparecerEnLogs!\"}"))
             .andExpect(status().isUnauthorized());
         assertThat(output.getAll()).contains("security_event=authentication_failure")

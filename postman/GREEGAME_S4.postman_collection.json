@@ -1,0 +1,448 @@
+{
+  "info": {
+    "name": "GREEGAME Semana 4",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Ejecutar en orden y conservar cookies. La solicitud 09 crea un evento de demostración. Los accesos privados requieren JWT; las escrituras requieren además CSRF. No guardar tokens reales en el repositorio."
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "email",
+      "value": "player2@eventos.test"
+    },
+    {
+      "key": "password",
+      "value": "GamerDemo2026!"
+    },
+    {
+      "key": "csrfToken",
+      "value": ""
+    },
+    {
+      "key": "accessToken",
+      "value": ""
+    },
+    {
+      "key": "eventId",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "01 Obtener CSRF",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/csrf",
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "pm.collectionVariables.set(\"csrfToken\", pm.response.json().token);",
+              "pm.test(\"Cookie CSRF presente\", () => pm.expect(pm.response.headers.get(\"Set-Cookie\")).to.include(\"XSRF-TOKEN\"));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "02 Login sin CSRF rechazado",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/auth/login",
+        "auth": {
+          "type": "noauth"
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\"email\": \"{{email}}\", \"password\": \"{{password}}\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 403\", () => pm.response.to.have.status(403));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "03 Login con CSRF",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "X-XSRF-TOKEN",
+            "value": "{{csrfToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/auth/login",
+        "auth": {
+          "type": "noauth"
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\"email\": \"{{email}}\", \"password\": \"{{password}}\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "pm.collectionVariables.set(\"accessToken\",pm.response.json().accessToken);",
+              "pm.test(\"JWT Bearer\",()=>pm.expect(pm.response.json().tokenType).to.eql(\"Bearer\"));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "04 Búsqueda pública",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/eventos",
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "05 Detalle sin JWT rechazado",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/eventos/1",
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 401\", () => pm.response.to.have.status(401));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "06 Detalle con JWT",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/eventos/1",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "07 Publicar sin JWT rechazado",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "X-XSRF-TOKEN",
+            "value": "{{csrfToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/eventos",
+        "auth": {
+          "type": "noauth"
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\"title\": \"Encuentro gamer S4 Postman\", \"category\": \"Comunidad\", \"location\": \"Santiago\", \"startsAt\": \"2030-06-01T18:00:00\", \"description\": \"Evento académico de prueba creado desde Postman.\", \"videoGame\": \"Minecraft\", \"country\": \"Chile\", \"modality\": \"Online\", \"address\": \"No aplica: online\", \"organizers\": \"Comunidad GREEGAME\", \"accessUrl\": \"https://example.com/evento\", \"requirements\": \"Cuenta de juego\", \"registrationInfo\": \"Consultar con la organización\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 401\", () => pm.response.to.have.status(401));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "08 Publicar sin CSRF rechazado",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/eventos",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\"title\": \"Encuentro gamer S4 Postman\", \"category\": \"Comunidad\", \"location\": \"Santiago\", \"startsAt\": \"2030-06-01T18:00:00\", \"description\": \"Evento académico de prueba creado desde Postman.\", \"videoGame\": \"Minecraft\", \"country\": \"Chile\", \"modality\": \"Online\", \"address\": \"No aplica: online\", \"organizers\": \"Comunidad GREEGAME\", \"accessUrl\": \"https://example.com/evento\", \"requirements\": \"Cuenta de juego\", \"registrationInfo\": \"Consultar con la organización\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 403\", () => pm.response.to.have.status(403));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "09 Publicar evento",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "X-XSRF-TOKEN",
+            "value": "{{csrfToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/eventos",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\"title\": \"Encuentro gamer S4 Postman\", \"category\": \"Comunidad\", \"location\": \"Santiago\", \"startsAt\": \"2030-06-01T18:00:00\", \"description\": \"Evento académico de prueba creado desde Postman.\", \"videoGame\": \"Minecraft\", \"country\": \"Chile\", \"modality\": \"Online\", \"address\": \"No aplica: online\", \"organizers\": \"Comunidad GREEGAME\", \"accessUrl\": \"https://example.com/evento\", \"requirements\": \"Cuenta de juego\", \"registrationInfo\": \"Consultar con la organización\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 201\", () => pm.response.to.have.status(201));",
+              "pm.collectionVariables.set(\"eventId\",pm.response.json().id);",
+              "pm.test(\"ID asignado\",()=>pm.expect(pm.response.json().id).to.be.above(4));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "10 Consultar evento publicado",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/eventos/{{eventId}}",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "pm.test(\"Evento persistido\",()=>pm.expect(pm.response.json().title).to.eql(\"Encuentro gamer S4 Postman\"));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "11 Rechazar enlace inseguro",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "X-XSRF-TOKEN",
+            "value": "{{csrfToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/eventos",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\"title\": \"Encuentro gamer S4 Postman\", \"category\": \"Comunidad\", \"location\": \"Santiago\", \"startsAt\": \"2030-06-01T18:00:00\", \"description\": \"Evento académico de prueba creado desde Postman.\", \"videoGame\": \"Minecraft\", \"country\": \"Chile\", \"modality\": \"Online\", \"address\": \"No aplica: online\", \"organizers\": \"Comunidad GREEGAME\", \"accessUrl\": \"javascript:alert(1)\", \"requirements\": \"Cuenta de juego\", \"registrationInfo\": \"Consultar con la organización\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 400\", () => pm.response.to.have.status(400));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "12 USER no accede a administración",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/admin/resumen",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 403\", () => pm.response.to.have.status(403));"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

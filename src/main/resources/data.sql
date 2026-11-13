@@ -75,3 +75,7 @@ SELECT d.event_id, 1, 'encuentro-retro.jpg', 'Zona de juegos retro en Japan Expo
     'https://creativecommons.org/licenses/by-sa/3.0/'
 FROM event_details d WHERE d.event_id IN (1, 2, 3, 4)
 AND NOT EXISTS (SELECT 1 FROM event_photos p WHERE p.event_id = d.event_id AND p.photo_order = 1);
+
+INSERT INTO event_id_sequence (sequence_name, next_value)
+SELECT 'events', COALESCE(MAX(id), 0) + 1 FROM events
+HAVING NOT EXISTS (SELECT 1 FROM event_id_sequence WHERE sequence_name = 'events');

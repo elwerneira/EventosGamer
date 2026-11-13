@@ -3,6 +3,9 @@ package Informacion.Eventos;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.TableGenerator;
 import jakarta.persistence.Table;
 import jakarta.persistence.OneToOne;
 import java.time.LocalDateTime;
@@ -10,6 +13,9 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "events")
 public class StoredEvent {
+    @TableGenerator(name = "event_ids", table = "event_id_sequence", pkColumnName = "sequence_name",
+        valueColumnName = "next_value", pkColumnValue = "events", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.TABLE, generator = "event_ids")
     @Id
     Long id;
     @Column(nullable = false, length = 120)

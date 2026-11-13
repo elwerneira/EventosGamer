@@ -13,6 +13,7 @@
     <nav aria-label="Navegación principal">
         <a th:href="@{/}">Inicio</a>
         <a th:href="@{/eventos}">Explorar eventos</a>
+        <a sec:authorize="isAuthenticated()" th:href="@{/eventos/publicar}">Publicar evento</a>
         <a sec:authorize="isAuthenticated()" th:href="@{/perfil}">Mi perfil</a>
         <a sec:authorize="!isAuthenticated()" th:href="@{/login}">Ingresar</a>
         <a sec:authorize="!isAuthenticated()" class="button small" th:href="@{/registro}">Unirme →</a>

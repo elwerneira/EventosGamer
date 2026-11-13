@@ -53,3 +53,8 @@ CREATE TABLE IF NOT EXISTS event_photos (
     PRIMARY KEY (event_id, photo_order),
     FOREIGN KEY (event_id) REFERENCES event_details(event_id)
 );
+
+CREATE TABLE IF NOT EXISTS event_id_sequence (
+    sequence_name VARCHAR(255) PRIMARY KEY,
+    next_value BIGINT NOT NULL
+);

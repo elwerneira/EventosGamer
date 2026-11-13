@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('Publicar evento')}"><title>Publicar evento · GREEGAME</title></head>
+<body>
+<header th:replace="~{fragments :: nav}"></header>
+<main id="contenido" class="form-page">
+    <section class="form-intro"><p class="eyebrow">Comparte tu próxima partida</p><h1>Reúne a tu comunidad<span class="accent">.</span></h1><p>Publica un evento gamer con información clara para quienes quieran participar.</p><a class="text-link" th:href="@{/eventos}">← Explorar eventos</a></section>
+    <section class="panel" aria-labelledby="publish-title">
+        <h2 id="publish-title">Publicar evento</h2>
+        <form th:action="@{/eventos/publicar}" th:object="${form}" method="post" class="stack">
+            <div th:if="${#fields.hasAnyErrors()}" class="message error" role="alert"><p>Revisa los datos del evento:</p><ul><li th:each="error : ${#fields.allErrors()}" th:text="${error}"></li></ul></div>
+            <div><label for="title">Nombre del evento</label><input id="title" th:field="*{title}" required maxlength="120"></div>
+            <div><label for="category">Categoría</label><input id="category" th:field="*{category}" required maxlength="60" placeholder="Esports, Retro, Indie…"></div>
+            <div><label for="videoGame">Videojuego</label><input id="videoGame" th:field="*{videoGame}" required maxlength="100"></div>
+            <div><label for="startsAt">Fecha y hora de inicio</label><input id="startsAt" th:field="*{startsAt}" type="datetime-local" required></div>
+            <div><label for="country">País</label><input id="country" th:field="*{country}" required maxlength="80"></div>
+            <div><label for="location">Ciudad o ubicación</label><input id="location" th:field="*{location}" required maxlength="80"></div>
+            <div><label for="modality">Modalidad</label><select id="modality" th:field="*{modality}"><option value="Presencial">Presencial</option><option value="Online">Online</option><option value="Híbrido">Híbrido</option></select></div>
+            <div><label for="address">Dirección</label><input id="address" th:field="*{address}" required maxlength="200" aria-describedby="address-help"><p id="address-help" class="hint">Para encuentros online indica que no aplica.</p></div>
+            <div><label for="organizers">Organización</label><input id="organizers" th:field="*{organizers}" required maxlength="200"></div>
+            <div><label for="accessUrl">Enlace de acceso</label><input id="accessUrl" th:field="*{accessUrl}" type="url" maxlength="300" aria-describedby="access-help"><p id="access-help" class="hint">Obligatorio para eventos online o híbridos. Usa http o https.</p></div>
+            <div><label for="description">Descripción</label><textarea id="description" th:field="*{description}" required maxlength="1500" rows="4"></textarea></div>
+            <div><label for="requirements">Requisitos de participación</label><textarea id="requirements" th:field="*{requirements}" required maxlength="1000" rows="3"></textarea></div>
+            <div><label for="registrationInfo">Inscripción</label><textarea id="registrationInfo" th:field="*{registrationInfo}" required maxlength="1000" rows="3"></textarea></div>
+            <button class="button" type="submit">Publicar evento →</button>
+        </form>
+    </section>
+</main>
+<footer th:replace="~{fragments :: footer}"></footer>
+</body>
+</html>

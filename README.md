@@ -1,5 +1,22 @@
 # GREEGAME
 
+## Semana 4
+
+La publicación de eventos está disponible para usuarios autenticados en `/eventos/publicar` y `POST /api/eventos`. El formulario web requiere sesión y CSRF. La API requiere JWT para publicar y CSRF para todas las escrituras, incluido el login. La búsqueda y el login conservan acceso público; el login público no significa que se omita CSRF.
+
+1. Ejecutar `GET /api/csrf` y conservar la cookie `XSRF-TOKEN`.
+2. Enviar el valor `token` de la respuesta en el encabezado indicado por `headerName` (`X-XSRF-TOKEN`) al hacer `POST /api/auth/login`.
+3. Enviar `Authorization: Bearer TOKEN` para las rutas privadas, y además cookie y encabezado CSRF para publicar.
+
+Importar `postman/GREEGAME_S4.postman_collection.json` y ejecutar las solicitudes en orden, con las cookies habilitadas. Incluye casos 200, 201, 400, 401 y 403. La solicitud 09 crea un evento de demostración; utilizar una base de prueba para la evidencia. Las variables de JWT y CSRF se entregan vacías.
+
+La asignación del ID utiliza una secuencia JPA en `event_id_sequence`. Los scripts `schema.sql` y `data.sql` crean e inicializan esta tabla sin cambiar los IDs, cuentas o eventos existentes. No se reinician los volúmenes de Docker.
+
+Validación automatizada: `./mvnw.cmd -Dspring.profiles.active=test test`. El perfil test usa H2. La verificación MySQL debe utilizar una base separada para conservar los datos locales.
+
+Los resultados ZAP de la semana 3 que siguen son históricos. El análisis estático de la semana 4 corresponde a SonarQube Cloud y se documenta en el informe de resultados de esa semana.
+
+
 GREEGAME reúne las funcionalidades del caso gamer y la revisión de seguridad de la sumativa: frontend Thymeleaf, API REST, Spring Security, persistencia JPA/MySQL y análisis OWASP Top 10 2021. El inicio incluye eventos recientes, populares y tres banners comerciales de demostración: VECTOR, RESPAWN+ y PIXEL LAB.
 
 ### Controles de seguridad incorporados
@@ -118,7 +135,8 @@ Ejemplo en PowerShell, después de iniciar la aplicación:
 
 ```powershell
 $body = @{ email = 'player2@eventos.test'; password = 'GamerDemo2026!' } | ConvertTo-Json
-$login = Invoke-RestMethod http://127.0.0.1:8080/api/auth/login -Method Post -ContentType 'application/json' -Body $body
+$csrf = Invoke-RestMethod http://127.0.0.1:8080/api/csrf -SessionVariable apiSession
+$login = Invoke-RestMethod http://127.0.0.1:8080/api/auth/login -WebSession $apiSession -Headers @{ $csrf.headerName = $csrf.token } -Method Post -ContentType 'application/json' -Body $body
 Invoke-RestMethod http://127.0.0.1:8080/api/eventos/1 -Headers @{ Authorization = "Bearer $($login.accessToken)" }
 ```
 

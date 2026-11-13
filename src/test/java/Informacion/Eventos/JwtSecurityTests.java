@@ -1,6 +1,7 @@
 package Informacion.Eventos;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.containsString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -30,7 +31,7 @@ class JwtSecurityTests {
     @Value("${security.jwt.secret}") String secret;
 
     private String login(int player) throws Exception {
-        var response = mvc.perform(post("/api/auth/login").contentType("application/json")
+        var response = mvc.perform(post("/api/auth/login").with(csrf().asHeader()).contentType("application/json")
                 .content("{\"email\":\"player" + player + "@eventos.test\",\"password\":\"GamerDemo2026!\"}"))
             .andExpect(status().isOk()).andExpect(jsonPath("$.tokenType").value("Bearer"))
             .andExpect(jsonPath("$.expiresIn").value(900)).andReturn();
@@ -75,10 +76,10 @@ class JwtSecurityTests {
     }
 
     @Test void badCredentialsAndInvalidInputsDoNotIssueTokens() throws Exception {
-        mvc.perform(post("/api/auth/login").contentType("application/json")
+        mvc.perform(post("/api/auth/login").with(csrf().asHeader()).contentType("application/json")
             .content("{\"email\":\"player1@eventos.test\",\"password\":\"incorrecta\"}"))
             .andExpect(status().isUnauthorized());
-        mvc.perform(post("/api/auth/login").contentType("application/json").content("{}"))
+        mvc.perform(post("/api/auth/login").with(csrf().asHeader()).contentType("application/json").content("{}"))
             .andExpect(status().isBadRequest());
         mvc.perform(get("/api/admin/resumen").header("Authorization", "Bearer " + login(2)))
             .andExpect(status().isForbidden());
