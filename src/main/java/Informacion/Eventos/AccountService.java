@@ -58,6 +58,7 @@ public class AccountService implements UserDetailsService, ApplicationRunner {
     }
 
     @Override
+    @Transactional
     public void run(ApplicationArguments args) {
         for (int i = 1; i <= 3; i++) {
             String email = "player" + i + "@eventos.test";

@@ -48,7 +48,8 @@ public class WebSecurityCongig {
     SecurityFilterChain apiFilterChain(HttpSecurity http, JwtService jwt, AccountService accounts) throws Exception {
         securityHeaders(http);
         return http.securityMatcher("/api/**")
-            .csrf(csrf -> csrf.disable())
+            // La API solo admite Bearer explícito; las cookies de sesión no la autentican.
+            .csrf(csrf -> csrf.ignoringRequestMatchers("/api/**"))
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .requestCache(cache -> cache.disable())
             .authorizeHttpRequests(requests -> requests
