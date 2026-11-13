@@ -10,6 +10,8 @@ La publicación de eventos está disponible para usuarios autenticados en `/even
 
 Importar `postman/GREEGAME_S4.postman_collection.json` y ejecutar las solicitudes en orden, con las cookies habilitadas. Incluye casos 200, 201, 400, 401 y 403. La solicitud 09 crea un evento de demostración; utilizar una base de prueba para la evidencia. Las variables de JWT y CSRF se entregan vacías.
 
+La colección renueva automáticamente CSRF antes de cada escritura, porque Spring Security puede rotarlo al autenticar una solicitud. Para peticiones manuales, vuelve a obtener `/api/csrf` antes de publicar y conserva las cookies. La publicación admite fechas futuras hasta 2037, dentro del rango de la columna TIMESTAMP de MySQL.
+
 La asignación del ID utiliza una secuencia JPA en `event_id_sequence`. Los scripts `schema.sql` y `data.sql` crean e inicializan esta tabla sin cambiar los IDs, cuentas o eventos existentes. No se reinician los volúmenes de Docker.
 
 Validación automatizada: `./mvnw.cmd -Dspring.profiles.active=test test`. El perfil test usa H2. La verificación MySQL debe utilizar una base separada para conservar los datos locales.

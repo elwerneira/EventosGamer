@@ -121,6 +121,20 @@
       },
       "event": [
         {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.sendRequest({url:pm.variables.replaceIn(\"{{baseUrl}}/api/csrf\"),method:\"GET\"},(error,response)=>{",
+              "  if(error || response.code !== 200) throw new Error(\"No se pudo obtener CSRF\");",
+              "  const csrf=response.json();",
+              "  pm.collectionVariables.set(\"csrfToken\",csrf.token);",
+              "  pm.request.headers.upsert({key:csrf.headerName,value:csrf.token});",
+              "});"
+            ]
+          }
+        },
+        {
           "listen": "test",
           "script": {
             "type": "text/javascript",
@@ -236,6 +250,20 @@
       },
       "event": [
         {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.sendRequest({url:pm.variables.replaceIn(\"{{baseUrl}}/api/csrf\"),method:\"GET\"},(error,response)=>{",
+              "  if(error || response.code !== 200) throw new Error(\"No se pudo obtener CSRF\");",
+              "  const csrf=response.json();",
+              "  pm.collectionVariables.set(\"csrfToken\",csrf.token);",
+              "  pm.request.headers.upsert({key:csrf.headerName,value:csrf.token});",
+              "});"
+            ]
+          }
+        },
+        {
           "listen": "test",
           "script": {
             "type": "text/javascript",
@@ -326,6 +354,20 @@
       },
       "event": [
         {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.sendRequest({url:pm.variables.replaceIn(\"{{baseUrl}}/api/csrf\"),method:\"GET\"},(error,response)=>{",
+              "  if(error || response.code !== 200) throw new Error(\"No se pudo obtener CSRF\");",
+              "  const csrf=response.json();",
+              "  pm.collectionVariables.set(\"csrfToken\",csrf.token);",
+              "  pm.request.headers.upsert({key:csrf.headerName,value:csrf.token});",
+              "});"
+            ]
+          }
+        },
+        {
           "listen": "test",
           "script": {
             "type": "text/javascript",
@@ -404,6 +446,20 @@
         }
       },
       "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.sendRequest({url:pm.variables.replaceIn(\"{{baseUrl}}/api/csrf\"),method:\"GET\"},(error,response)=>{",
+              "  if(error || response.code !== 200) throw new Error(\"No se pudo obtener CSRF\");",
+              "  const csrf=response.json();",
+              "  pm.collectionVariables.set(\"csrfToken\",csrf.token);",
+              "  pm.request.headers.upsert({key:csrf.headerName,value:csrf.token});",
+              "});"
+            ]
+          }
+        },
         {
           "listen": "test",
           "script": {
