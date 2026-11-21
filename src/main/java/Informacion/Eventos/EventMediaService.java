@@ -25,7 +25,7 @@ public class EventMediaService {
     @Transactional
     public String upload(long eventId, String email, MultipartFile file, String caption) {
         ownership.requireOwner(eventId, email);
-        if (file.isEmpty() || file.getSize() > 25L * 1024 * 1024 || caption.length() > 240) {
+        if (file.isEmpty() || file.getSize() > 7L * 1024 * 1024 || caption.length() > 240) {
             throw invalid();
         }
         try {
@@ -85,6 +85,6 @@ public class EventMediaService {
 
     private ResponseStatusException invalid() {
         return new ResponseStatusException(HttpStatus.BAD_REQUEST,
-            "Usa JPEG o PNG de hasta 5 MB y 10 megapíxeles, o MP4 de hasta 25 MB. Descripción: hasta 240 caracteres.");
+            "Usa JPEG o PNG de hasta 5 MB y 10 megapíxeles, o MP4 de hasta 7 MB. Descripción: hasta 240 caracteres.");
     }
 }

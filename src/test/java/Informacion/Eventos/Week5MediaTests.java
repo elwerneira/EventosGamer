@@ -87,8 +87,9 @@ class Week5MediaTests {
     }
 
     @Test void oversizedFilesExcessivePixelsAndCaptionsAreRejectedWithoutPersistence() throws Exception {
-        var oversized = new MockMultipartFile("file", "video.mp4", "video/mp4", new byte[16]) {
-            @Override public long getSize() { return 26L * 1024 * 1024; }
+        byte[] signature = new byte[]{0,0,0,24,'f','t','y','p','i','s','o','m',0,0,0,0,'i','s','o','m','m','p','4','2'};
+        var oversized = new MockMultipartFile("file", "video.mp4", "video/mp4", signature) {
+            @Override public long getSize() { return 7L * 1024 * 1024 + 1; }
         };
         mvc.perform(multipart("/api/eventos/1/media").file(oversized).with(csrf().asHeader())
             .header("Authorization", bearer(1))).andExpect(status().isBadRequest());

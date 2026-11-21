@@ -6,7 +6,7 @@ Las publicaciones guardan su autor. Los eventos anteriores sin autor se asocian 
 
 - `/mis-eventos` y `/api/mis-eventos`: publicaciones del usuario autenticado.
 - `/eventos/{id}/comunidad` y `/api/eventos/{id}/comunidad`: multimedia, comentarios y valoraciones; acceso privado.
-- `POST /eventos/{id}/media` y `POST /api/eventos/{id}/media`: el autor agrega JPEG/PNG (5 MB, hasta 10 megapíxeles) o MP4 (25 MB). Los bytes y metadatos se guardan en MySQL, sin usar nombres de archivo del cliente. El MP4 se valida por tipo y firma de contenedor; no se realiza un análisis antivirus ni una transcodificación.
+- `POST /eventos/{id}/media` y `POST /api/eventos/{id}/media`: el autor agrega JPEG/PNG (5 MB, hasta 10 megapíxeles) o MP4 (7 MB). Los bytes y metadatos se guardan en MySQL, sin usar nombres de archivo del cliente. El MP4 se valida por tipo y firma de contenedor; no se realiza un análisis antivirus ni una transcodificación.
 - `POST /eventos/{id}/compartir` y `POST /api/eventos/{id}/compartir`: solo el autor comparte en la comunidad; se ofrecen enlaces de WhatsApp, Facebook y X. El destinatario inicia sesión para acceder al detalle. No se publican tokens en los enlaces.
 - `POST /eventos/{id}/comentarios` y `POST /api/eventos/{id}/comentarios`: usuarios autenticados; máximo 500 caracteres, texto escapado al mostrarlo. Se muestran los 50 comentarios más recientes.
 - `POST /eventos/{id}/valoracion` y `PUT /api/eventos/{id}/valoracion`: puntuación 1 a 5; cada cuenta tiene un solo voto por evento y puede actualizarlo.
