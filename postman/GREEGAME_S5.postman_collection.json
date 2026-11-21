@@ -1,0 +1,968 @@
+{
+  "info": {
+    "name": "GREEGAME Semana 5",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Ejecutar en orden con cookies habilitadas. Crea un evento de prueba, agrega una foto, comentario y valoración y lo comparte dentro del sitio. Las escrituras requieren CSRF y los recursos privados JWT. Los enlaces sociales solo se generan: no publican mensajes automáticamente."
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "email",
+      "value": "player2@eventos.test"
+    },
+    {
+      "key": "password",
+      "value": "GamerDemo2026!"
+    },
+    {
+      "key": "csrfToken",
+      "value": ""
+    },
+    {
+      "key": "accessToken",
+      "value": ""
+    },
+    {
+      "key": "eventId",
+      "value": ""
+    },
+    {
+      "key": "mediaId",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "01 Obtener CSRF",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/csrf",
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "pm.collectionVariables.set(\"csrfToken\", pm.response.json().token);",
+              "pm.test(\"Cookie CSRF presente\", () => pm.expect(pm.response.headers.get(\"Set-Cookie\")).to.include(\"XSRF-TOKEN\"));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "02 Login sin CSRF rechazado",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/auth/login",
+        "auth": {
+          "type": "noauth"
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\"email\": \"{{email}}\", \"password\": \"{{password}}\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 403\", () => pm.response.to.have.status(403));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "03 Login con CSRF",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "X-XSRF-TOKEN",
+            "value": "{{csrfToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/auth/login",
+        "auth": {
+          "type": "noauth"
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\"email\": \"{{email}}\", \"password\": \"{{password}}\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.sendRequest({url:pm.variables.replaceIn(\"{{baseUrl}}/api/csrf\"),method:\"GET\"},(error,response)=>{",
+              "  if(error || response.code !== 200) throw new Error(\"No se pudo obtener CSRF\");",
+              "  const csrf=response.json();",
+              "  pm.collectionVariables.set(\"csrfToken\",csrf.token);",
+              "  pm.request.headers.upsert({key:csrf.headerName,value:csrf.token});",
+              "});"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "pm.collectionVariables.set(\"accessToken\",pm.response.json().accessToken);",
+              "pm.test(\"JWT Bearer\",()=>pm.expect(pm.response.json().tokenType).to.eql(\"Bearer\"));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "04 Búsqueda pública",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/eventos",
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "05 Detalle sin JWT rechazado",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/eventos/1",
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 401\", () => pm.response.to.have.status(401));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "06 Detalle con JWT",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/eventos/1",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "07 Publicar sin JWT rechazado",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "X-XSRF-TOKEN",
+            "value": "{{csrfToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/eventos",
+        "auth": {
+          "type": "noauth"
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\"title\": \"Encuentro gamer S4 Postman\", \"category\": \"Comunidad\", \"location\": \"Santiago\", \"startsAt\": \"2030-06-01T18:00:00\", \"description\": \"Evento académico de prueba creado desde Postman.\", \"videoGame\": \"Minecraft\", \"country\": \"Chile\", \"modality\": \"Online\", \"address\": \"No aplica: online\", \"organizers\": \"Comunidad GREEGAME\", \"accessUrl\": \"https://example.com/evento\", \"requirements\": \"Cuenta de juego\", \"registrationInfo\": \"Consultar con la organización\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.sendRequest({url:pm.variables.replaceIn(\"{{baseUrl}}/api/csrf\"),method:\"GET\"},(error,response)=>{",
+              "  if(error || response.code !== 200) throw new Error(\"No se pudo obtener CSRF\");",
+              "  const csrf=response.json();",
+              "  pm.collectionVariables.set(\"csrfToken\",csrf.token);",
+              "  pm.request.headers.upsert({key:csrf.headerName,value:csrf.token});",
+              "});"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 401\", () => pm.response.to.have.status(401));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "08 Publicar sin CSRF rechazado",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/eventos",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\"title\": \"Encuentro gamer S4 Postman\", \"category\": \"Comunidad\", \"location\": \"Santiago\", \"startsAt\": \"2030-06-01T18:00:00\", \"description\": \"Evento académico de prueba creado desde Postman.\", \"videoGame\": \"Minecraft\", \"country\": \"Chile\", \"modality\": \"Online\", \"address\": \"No aplica: online\", \"organizers\": \"Comunidad GREEGAME\", \"accessUrl\": \"https://example.com/evento\", \"requirements\": \"Cuenta de juego\", \"registrationInfo\": \"Consultar con la organización\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 403\", () => pm.response.to.have.status(403));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "09 Publicar evento",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "X-XSRF-TOKEN",
+            "value": "{{csrfToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/eventos",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\"title\": \"Encuentro gamer S4 Postman\", \"category\": \"Comunidad\", \"location\": \"Santiago\", \"startsAt\": \"2030-06-01T18:00:00\", \"description\": \"Evento académico de prueba creado desde Postman.\", \"videoGame\": \"Minecraft\", \"country\": \"Chile\", \"modality\": \"Online\", \"address\": \"No aplica: online\", \"organizers\": \"Comunidad GREEGAME\", \"accessUrl\": \"https://example.com/evento\", \"requirements\": \"Cuenta de juego\", \"registrationInfo\": \"Consultar con la organización\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.sendRequest({url:pm.variables.replaceIn(\"{{baseUrl}}/api/csrf\"),method:\"GET\"},(error,response)=>{",
+              "  if(error || response.code !== 200) throw new Error(\"No se pudo obtener CSRF\");",
+              "  const csrf=response.json();",
+              "  pm.collectionVariables.set(\"csrfToken\",csrf.token);",
+              "  pm.request.headers.upsert({key:csrf.headerName,value:csrf.token});",
+              "});"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 201\", () => pm.response.to.have.status(201));",
+              "pm.collectionVariables.set(\"eventId\",pm.response.json().id);",
+              "pm.test(\"ID asignado\",()=>pm.expect(pm.response.json().id).to.be.above(4));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "10 Consultar evento publicado",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/eventos/{{eventId}}",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "pm.test(\"Evento persistido\",()=>pm.expect(pm.response.json().title).to.eql(\"Encuentro gamer S4 Postman\"));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "11 Rechazar enlace inseguro",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "X-XSRF-TOKEN",
+            "value": "{{csrfToken}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/eventos",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\"title\": \"Encuentro gamer S4 Postman\", \"category\": \"Comunidad\", \"location\": \"Santiago\", \"startsAt\": \"2030-06-01T18:00:00\", \"description\": \"Evento académico de prueba creado desde Postman.\", \"videoGame\": \"Minecraft\", \"country\": \"Chile\", \"modality\": \"Online\", \"address\": \"No aplica: online\", \"organizers\": \"Comunidad GREEGAME\", \"accessUrl\": \"javascript:alert(1)\", \"requirements\": \"Cuenta de juego\", \"registrationInfo\": \"Consultar con la organización\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.sendRequest({url:pm.variables.replaceIn(\"{{baseUrl}}/api/csrf\"),method:\"GET\"},(error,response)=>{",
+              "  if(error || response.code !== 200) throw new Error(\"No se pudo obtener CSRF\");",
+              "  const csrf=response.json();",
+              "  pm.collectionVariables.set(\"csrfToken\",csrf.token);",
+              "  pm.request.headers.upsert({key:csrf.headerName,value:csrf.token});",
+              "});"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 400\", () => pm.response.to.have.status(400));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "12 USER no accede a administración",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/admin/resumen",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 403\", () => pm.response.to.have.status(403));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "13 Mis publicaciones",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/mis-eventos",
+        "header": [],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('HTTP 200',()=>pm.response.to.have.status(200));",
+              "pm.test(\"Autor de la publicación\",()=>pm.expect(pm.response.json().some(e=>e.id===Number(pm.collectionVariables.get(\"eventId\")))).to.eql(true));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "14 Agregar comentario",
+      "request": {
+        "body": {
+          "mode": "raw",
+          "raw": "{\"body\":\"Encuentro gamer: prueba funcional de Semana 5.\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{baseUrl}}/api/eventos/{{eventId}}/comentarios",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "method": "POST"
+      },
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.sendRequest({url:pm.variables.replaceIn(\"{{baseUrl}}/api/csrf\"),method:\"GET\"},(error,response)=>{",
+              "  if(error || response.code !== 200) throw new Error(\"No se pudo obtener CSRF\");",
+              "  const csrf=response.json();",
+              "  pm.collectionVariables.set(\"csrfToken\",csrf.token);",
+              "  pm.request.headers.upsert({key:csrf.headerName,value:csrf.token});",
+              "});"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('HTTP 201',()=>pm.response.to.have.status(201));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "15 Valorar evento",
+      "request": {
+        "body": {
+          "mode": "raw",
+          "raw": "{\"score\":5}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{baseUrl}}/api/eventos/{{eventId}}/valoracion",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "method": "PUT"
+      },
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.sendRequest({url:pm.variables.replaceIn(\"{{baseUrl}}/api/csrf\"),method:\"GET\"},(error,response)=>{",
+              "  if(error || response.code !== 200) throw new Error(\"No se pudo obtener CSRF\");",
+              "  const csrf=response.json();",
+              "  pm.collectionVariables.set(\"csrfToken\",csrf.token);",
+              "  pm.request.headers.upsert({key:csrf.headerName,value:csrf.token});",
+              "});"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('HTTP 204',()=>pm.response.to.have.status(204));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "16 Compartir publicación propia",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/api/eventos/{{eventId}}/compartir",
+        "header": [],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.sendRequest({url:pm.variables.replaceIn(\"{{baseUrl}}/api/csrf\"),method:\"GET\"},(error,response)=>{",
+              "  if(error || response.code !== 200) throw new Error(\"No se pudo obtener CSRF\");",
+              "  const csrf=response.json();",
+              "  pm.collectionVariables.set(\"csrfToken\",csrf.token);",
+              "  pm.request.headers.upsert({key:csrf.headerName,value:csrf.token});",
+              "});"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('HTTP 200',()=>pm.response.to.have.status(200));",
+              "pm.test(\"Enlaces disponibles\",()=>pm.expect(pm.response.json()).to.have.all.keys(\"url\",\"whatsapp\",\"facebook\",\"x\"));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "17 Comunidad del sitio",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/comunidad",
+        "header": [],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('HTTP 200',()=>pm.response.to.have.status(200));",
+              "pm.test(\"Evento compartido\",()=>pm.expect(pm.response.json().some(e=>e.id===Number(pm.collectionVariables.get(\"eventId\")))).to.eql(true));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "18 Rechazar valoración fuera de rango",
+      "request": {
+        "body": {
+          "mode": "raw",
+          "raw": "{\"score\":6}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{baseUrl}}/api/eventos/{{eventId}}/valoracion",
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        },
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "method": "PUT"
+      },
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.sendRequest({url:pm.variables.replaceIn(\"{{baseUrl}}/api/csrf\"),method:\"GET\"},(error,response)=>{",
+              "  if(error || response.code !== 200) throw new Error(\"No se pudo obtener CSRF\");",
+              "  const csrf=response.json();",
+              "  pm.collectionVariables.set(\"csrfToken\",csrf.token);",
+              "  pm.request.headers.upsert({key:csrf.headerName,value:csrf.token});",
+              "});"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('HTTP 400',()=>pm.response.to.have.status(400));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "19 Rechazar compartir publicación ajena",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/api/eventos/1/compartir",
+        "header": [],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.sendRequest({url:pm.variables.replaceIn(\"{{baseUrl}}/api/csrf\"),method:\"GET\"},(error,response)=>{",
+              "  if(error || response.code !== 200) throw new Error(\"No se pudo obtener CSRF\");",
+              "  const csrf=response.json();",
+              "  pm.collectionVariables.set(\"csrfToken\",csrf.token);",
+              "  pm.request.headers.upsert({key:csrf.headerName,value:csrf.token});",
+              "});"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('HTTP 403',()=>pm.response.to.have.status(403));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "20 Agregar fotografía",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/api/eventos/{{eventId}}/media",
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "type": "file",
+              "contentType": "image/png",
+              "key": "file",
+              "src": "postman/fixtures/s5-prueba.png"
+            },
+            {
+              "type": "text",
+              "value": "Fotografía de demostración GREEGAME",
+              "key": "caption"
+            }
+          ]
+        },
+        "header": [],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.sendRequest({url:pm.variables.replaceIn(\"{{baseUrl}}/api/csrf\"),method:\"GET\"},(error,response)=>{",
+              "  if(error || response.code !== 200) throw new Error(\"No se pudo obtener CSRF\");",
+              "  const csrf=response.json();",
+              "  pm.collectionVariables.set(\"csrfToken\",csrf.token);",
+              "  pm.request.headers.upsert({key:csrf.headerName,value:csrf.token});",
+              "});"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('HTTP 201',()=>pm.response.to.have.status(201));",
+              "pm.collectionVariables.set(\"mediaId\",pm.response.json().id);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "21 Descargar fotografía privada",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/eventos/{{eventId}}/media/{{mediaId}}",
+        "header": [],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('HTTP 200',()=>pm.response.to.have.status(200));",
+              "pm.test(\"PNG privado\",()=>{pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"image/png\");pm.expect(pm.response.headers.get(\"Cache-Control\")).to.include(\"no-store\");});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "22 Comprobar comunidad persistida",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/eventos/{{eventId}}/comunidad",
+        "header": [],
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{accessToken}}",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('HTTP 200',()=>pm.response.to.have.status(200));",
+              "pm.test(\"Datos persistidos\",()=>{const v=pm.response.json();pm.expect(v.canManage).to.eql(true);pm.expect(v.commentCount).to.eql(1);pm.expect(v.votes).to.eql(1);pm.expect(v.average).to.eql(5);pm.expect(v.media.length).to.eql(1);});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "23 Comunidad sin JWT rechazada",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/comunidad",
+        "header": [],
+        "auth": {
+          "type": "noauth"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('HTTP 401',()=>pm.response.to.have.status(401));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,5 +1,33 @@
 # GREEGAME
 
+## Sumativa semana 5
+
+Las publicaciones guardan su autor. Los eventos anteriores sin autor se asocian una sola vez al administrador player1; no se reemplazan cuentas, contraseñas, perfiles ni eventos. Al reiniciar se conservan las propiedades existentes.
+
+- `/mis-eventos` y `/api/mis-eventos`: publicaciones del usuario autenticado.
+- `/eventos/{id}/comunidad` y `/api/eventos/{id}/comunidad`: multimedia, comentarios y valoraciones; acceso privado.
+- `POST /eventos/{id}/media` y `POST /api/eventos/{id}/media`: el autor agrega JPEG/PNG (5 MB, hasta 10 megapíxeles) o MP4 (25 MB). Los bytes y metadatos se guardan en MySQL, sin usar nombres de archivo del cliente. El MP4 se valida por tipo y firma de contenedor; no se realiza un análisis antivirus ni una transcodificación.
+- `POST /eventos/{id}/compartir` y `POST /api/eventos/{id}/compartir`: solo el autor comparte en la comunidad; se ofrecen enlaces de WhatsApp, Facebook y X. El destinatario inicia sesión para acceder al detalle. No se publican tokens en los enlaces.
+- `POST /eventos/{id}/comentarios` y `POST /api/eventos/{id}/comentarios`: usuarios autenticados; máximo 500 caracteres, texto escapado al mostrarlo. Se muestran los 50 comentarios más recientes.
+- `POST /eventos/{id}/valoracion` y `PUT /api/eventos/{id}/valoracion`: puntuación 1 a 5; cada cuenta tiene un solo voto por evento y puede actualizarlo.
+- `/comunidad` y `/api/comunidad`: lista privada de publicaciones compartidas.
+
+Todas las escrituras conservan CSRF. La API privada requiere además JWT Bearer; una cookie CSRF o una sesión web no sustituyen el JWT. Para publicar enlaces externos configura `eventos.public-base-url` con el origen público del sitio; el valor predeterminado es `http://localhost:8080` y no se confía en el encabezado Host de la solicitud.
+
+### Cobertura y análisis
+
+`./mvnw.cmd -Dspring.profiles.active=test test` genera `target/site/jacoco/index.html`, `jacoco.xml` y los resultados Surefire. Las fechas de los eventos de prueba se ajustan solo en las bases de prueba para que el calendario no invalide la verificación de próximos eventos.
+
+`./scripts/analyze-security.ps1` ejecuta pruebas y OWASP Dependency-Check mediante el perfil `security-analysis`. Requiere `NVD_API_KEY` en el entorno de la terminal o como variable de usuario de Windows. Se generan reportes HTML y JSON; el análisis falla si detecta un CVSS de 9 o superior. Un error de actualización NVD no equivale a un reporte sin vulnerabilidades.
+
+`./scripts/analyze-sonar.ps1` genera cobertura y la envía con el código Java y HTML a SonarCloud. Requiere `SONAR_TOKEN` y cambiar el proyecto de Automatic Analysis a análisis CI: el modo automático no importa cobertura. Las claves se configuran fuera de Git; no se colocan en el pom ni en el README.
+
+El workflow `.github/workflows/sumativa-semana5.yml` ejecuta pruebas y conserva cobertura. Los pasos de Sonar y Dependency-Check se ejecutan cuando existen los respectivos secretos `SONAR_TOKEN` y `NVD_API_KEY` en el repositorio. Si falta un secreto, el workflow informa la omisión; no constituye una ejecución de ese análisis.
+
+La solicitud, activación y clave NVD no forman parte de los archivos públicos ni del ZIP. La API NVD se usa para evaluar dependencias y no está integrada en las pantallas del sitio gamer.
+
+Los apartados de semanas anteriores que siguen conservan sus resultados históricos.
+
 ## Semana 4
 
 La publicación de eventos está disponible para usuarios autenticados en `/eventos/publicar` y `POST /api/eventos`. El formulario web requiere sesión y CSRF. La API requiere JWT para publicar y CSRF para todas las escrituras, incluido el login. La búsqueda y el login conservan acceso público; el login público no significa que se omita CSRF.
@@ -149,3 +177,5 @@ JJWT: https://github.com/jwtk/jjwt#installation
 - Spring Boot, bases SQL: <https://docs.spring.io/spring-boot/reference/data/sql.html>
 - Spring Boot, inicialización y validación del esquema: <https://docs.spring.io/spring-boot/how-to/data-initialization.html>
 - MySQL, instalación mediante ZIP en Windows: <https://dev.mysql.com/doc/refman/8.4/en/windows-install-archive.html>
+
+Colección de Semana 5: importar `postman/GREEGAME_S5.postman_collection.json`. Ejecutar desde la raíz del proyecto para resolver `postman/fixtures/s5-prueba.png`. Incluye 23 solicitudes principales, 10 consultas auxiliares CSRF y 32 aserciones. Crea datos de prueba; usar una base separada para las verificaciones automatizadas.

@@ -1,6 +1,7 @@
 package Informacion.Eventos;
 
 import java.util.Locale;
+import org.springframework.core.annotation.Order;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Order(0)
 public class AccountService implements UserDetailsService, ApplicationRunner {
     private final AccountRepository accounts;
     private final PasswordEncoder encoder;

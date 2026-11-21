@@ -29,6 +29,13 @@
 	<properties>
 		<java.version>17</java.version>
 		<jjwt.version>0.13.0</jjwt.version>
+        <mysql.version>26.10.0</mysql.version>
+        <sonar.projectKey>elwerneira_EventosGamer</sonar.projectKey>
+        <sonar.organization>elwerneira</sonar.organization>
+        <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+        <sonar.sources>src/main</sonar.sources>
+        <sonar.coverage.jacoco.xmlReportPaths>${project.basedir}/target/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
+        <sonar.junit.reportPaths>${project.basedir}/target/surefire-reports</sonar.junit.reportPaths>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -106,7 +113,32 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
-		</plugins>
+		            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.16</version>
+                <executions>
+                    <execution><id>coverage-agent</id><goals><goal>prepare-agent</goal></goals></execution>
+                    <execution><id>coverage-report</id><phase>test</phase><goals><goal>report</goal></goals></execution>
+                </executions>
+            </plugin>
+        </plugins>
 	</build>
 
+    <profiles>
+        <profile>
+            <id>security-analysis</id>
+            <build><plugins><plugin>
+                <groupId>org.owasp</groupId>
+                <artifactId>dependency-check-maven</artifactId>
+                <version>13.0.0</version>
+                <configuration>
+                    <failBuildOnCVSS>9</failBuildOnCVSS>
+                    <nvdApiKeyEnvironmentVariable>NVD_API_KEY</nvdApiKeyEnvironmentVariable>
+                    <formats><format>HTML</format><format>JSON</format></formats>
+                </configuration>
+                <executions><execution><goals><goal>check</goal></goals></execution></executions>
+            </plugin></plugins></build>
+        </profile>
+    </profiles>
 </project>

@@ -13,6 +13,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
+import java.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
@@ -30,6 +32,13 @@ class EventosSecurityTests {
     @Autowired EventRepository events;
     @Autowired AccountService accounts;
 
+    // Las fechas de la base de prueba no deben caducar con el calendario.
+    @BeforeEach
+    void futureDemoDates() {
+        for (int id = 1; id <= 4; id++) {
+            jdbc.update("UPDATE events SET starts_at = ? WHERE id = ?", LocalDate.now().plusDays(id).atTime(18, 0), id);
+        }
+    }
     @Test
     void publicPagesAndCssAreAccessible() throws Exception {
         for (String path : new String[]{"/", "/home", "/login", "/registro", "/login.css", "/eventos"}) {

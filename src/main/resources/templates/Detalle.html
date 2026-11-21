@@ -5,6 +5,7 @@
 <header th:replace="~{fragments :: nav}"></header>
 <main id="contenido" class="content-page">
     <a class="text-link" th:href="@{/eventos}">← Todos los eventos</a>
+    <p><a class="button outline" th:href="@{/eventos/{id}/comunidad(id=${event.id})}">Fotos, videos y comunidad →</a></p>
     <div class="detail-heading"><div><p class="eyebrow" th:text="${event.category}"></p><h1 th:text="${event.title}"></h1><p class="muted" th:text="${event.location}"></p></div><span class="detail-symbol" aria-hidden="true">↗</span></div>
     <div class="detail-grid">
         <section><h2>El encuentro</h2><p class="description" th:text="${event.description}"></p><h2>Quiénes estarán</h2><h3>Organizadores</h3><p th:text="${event.organizers}"></p><h3>Principales expositores</h3><p th:text="${event.exhibitors}"></p></section>

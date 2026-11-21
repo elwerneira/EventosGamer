@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head(${heading})}"><title>Comunidad · GREEGAME</title></head>
+<body>
+<header th:replace="~{fragments :: nav}"></header>
+<main id="contenido" class="content-page">
+    <h1 th:text="${heading}">Comunidad</h1>
+    <p class="muted">Comparte encuentros y participa con otros jugadores. Los detalles requieren iniciar sesión.</p>
+    <div class="cards"><th:block th:each="event : ${events}"><article th:replace="~{fragments :: card(${event})}"></article></th:block></div>
+    <p th:if="${#lists.isEmpty(events)}" class="message">Todavía no hay eventos en esta sección. <a th:href="@{/eventos/publicar}">Publica tu próximo encuentro.</a></p>
+</main>
+<footer th:replace="~{fragments :: footer}"></footer>
+</body>
+</html>

@@ -1,6 +1,7 @@
 package Informacion.Eventos;
 
 import jakarta.validation.Valid;
+import org.springframework.security.core.Authentication;
 import java.net.URI;
 import java.util.Map;
 import org.springframework.http.ResponseEntity;
@@ -23,15 +24,15 @@ public class EventPublicationController {
     }
 
     @PostMapping("/eventos/publicar")
-    String publish(@Valid @ModelAttribute("form") EventPublicationForm form, BindingResult errors) {
+    String publish(@Valid @ModelAttribute("form") EventPublicationForm form, BindingResult errors, Authentication authentication) {
         if (errors.hasErrors()) return "PublicarEvento";
-        return "redirect:/eventos/" + publications.publish(form).id();
+        return "redirect:/eventos/" + publications.publish(form, authentication.getName()).id();
     }
 
     @PostMapping("/api/eventos")
     @ResponseBody
-    ResponseEntity<Event> publishApi(@Valid @RequestBody EventPublicationForm form) {
-        Event event = publications.publish(form);
+    ResponseEntity<Event> publishApi(@Valid @RequestBody EventPublicationForm form, Authentication authentication) {
+        Event event = publications.publish(form, authentication.getName());
         return ResponseEntity.created(URI.create("/api/eventos/" + event.id())).body(event);
     }
 

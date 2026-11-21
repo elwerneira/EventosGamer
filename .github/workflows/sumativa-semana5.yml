@@ -1,0 +1,50 @@
+name: Sumativa semana 5
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verificar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+      - name: Pruebas y cobertura JaCoCo
+        run: bash ./mvnw --batch-mode -Dspring.profiles.active=test test
+      - name: Enviar codigo y cobertura a SonarCloud
+        if: env.SONAR_TOKEN != ''
+        run: bash ./mvnw --batch-mode org.sonarsource.scanner.maven:sonar-maven-plugin:5.9.0.7382:sonar -Dsonar.qualitygate.wait=true
+      - name: Analizar dependencias
+        if: env.NVD_API_KEY != ''
+        run: bash ./mvnw --batch-mode -Psecurity-analysis -DskipTests dependency-check:check
+      - name: Informar configuracion pendiente
+        if: env.SONAR_TOKEN == '' || env.NVD_API_KEY == ''
+        run: echo 'Los analisis externos omitidos requieren configurar SONAR_TOKEN o NVD_API_KEY en los secretos del repositorio. Las pruebas y la cobertura local se ejecutan igualmente.'
+      - name: Conservar resultados
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: resultados-semana5
+          path: |
+            target/site/jacoco/
+            target/surefire-reports/
+            target/dependency-check-report.html
+            target/dependency-check-report.json
+          if-no-files-found: warn

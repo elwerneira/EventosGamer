@@ -10,6 +10,8 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import java.util.List;
 import javax.sql.DataSource;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
+import java.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
@@ -34,6 +36,13 @@ class GamerEventsTests {
         return "Bearer " + jwt.issue(new UsernamePasswordAuthenticationToken(account, null, account.getAuthorities()));
     }
 
+    // Las fechas de la base de prueba no deben caducar con el calendario.
+    @BeforeEach
+    void futureDemoDates() {
+        for (int id = 1; id <= 4; id++) {
+            jdbc.update("UPDATE events SET starts_at = ? WHERE id = ?", LocalDate.now().plusDays(id).atTime(18, 0), id);
+        }
+    }
     @Test void allSevenFiltersWorkTogetherWithoutLoginAndSummariesStayPublicOnly() throws Exception {
         String date = events.find(1).orElseThrow().startsAt().toLocalDate().toString();
         for (String path : new String[]{"/eventos", "/api/eventos"}) {

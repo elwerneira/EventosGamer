@@ -13,7 +13,7 @@ public class EventPublicationService {
     public EventPublicationService(EntityManager persistence) { this.persistence = persistence; }
 
     @Transactional
-    public Event publish(EventPublicationForm form) {
+    public Event publish(EventPublicationForm form, String authorEmail) {
         var event = new StoredEvent();
         event.title = form.title().trim();
         event.category = form.category().trim();
@@ -40,6 +40,7 @@ public class EventPublicationService {
         details.photos = new ArrayList<>();
         persistence.persist(details);
         event.details = details;
+        persistence.persist(new EventOwnership(event.id, authorEmail));
         persistence.flush();
         return event.toEvent();
     }

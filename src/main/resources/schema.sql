@@ -58,3 +58,48 @@ CREATE TABLE IF NOT EXISTS event_id_sequence (
     sequence_name VARCHAR(255) PRIMARY KEY,
     next_value BIGINT NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS event_owners (
+    event_id BIGINT PRIMARY KEY,
+    author_email VARCHAR(254) NOT NULL,
+    FOREIGN KEY (event_id) REFERENCES events(id),
+    FOREIGN KEY (author_email) REFERENCES accounts(email)
+);
+
+CREATE TABLE IF NOT EXISTS event_media (
+    id VARCHAR(36) PRIMARY KEY,
+    event_id BIGINT NOT NULL,
+    kind VARCHAR(5) NOT NULL,
+    content_type VARCHAR(32) NOT NULL,
+    caption VARCHAR(240) NOT NULL,
+    created_at TIMESTAMP NOT NULL,
+    content LONGBLOB NOT NULL,
+    FOREIGN KEY (event_id) REFERENCES events(id)
+);
+
+CREATE TABLE IF NOT EXISTS event_comments (
+    id VARCHAR(36) PRIMARY KEY,
+    event_id BIGINT NOT NULL,
+    author_email VARCHAR(254) NOT NULL,
+    body VARCHAR(500) NOT NULL,
+    created_at TIMESTAMP NOT NULL,
+    FOREIGN KEY (event_id) REFERENCES events(id),
+    FOREIGN KEY (author_email) REFERENCES accounts(email)
+);
+
+CREATE TABLE IF NOT EXISTS event_ratings (
+    id VARCHAR(36) PRIMARY KEY,
+    event_id BIGINT NOT NULL,
+    author_email VARCHAR(254) NOT NULL,
+    score INTEGER NOT NULL,
+    UNIQUE (event_id, author_email),
+    CHECK (score BETWEEN 1 AND 5),
+    FOREIGN KEY (event_id) REFERENCES events(id),
+    FOREIGN KEY (author_email) REFERENCES accounts(email)
+);
+
+CREATE TABLE IF NOT EXISTS event_shares (
+    event_id BIGINT PRIMARY KEY,
+    shared_at TIMESTAMP NOT NULL,
+    FOREIGN KEY (event_id) REFERENCES events(id)
+);
