@@ -30,6 +30,8 @@
 		<java.version>17</java.version>
 		<jjwt.version>0.13.0</jjwt.version>
         <mysql.version>26.10.0</mysql.version>
+        <logback.version>1.6.5</logback.version>
+        <json-smart.version>2.6.1</json-smart.version>
         <sonar.projectKey>elwerneira_EventosGamer</sonar.projectKey>
         <sonar.organization>elwerneira</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>

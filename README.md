@@ -179,3 +179,9 @@ JJWT: https://github.com/jwtk/jjwt#installation
 - MySQL, instalación mediante ZIP en Windows: <https://dev.mysql.com/doc/refman/8.4/en/windows-install-archive.html>
 
 Colección de Semana 5: importar `postman/GREEGAME_S5.postman_collection.json`. Ejecutar desde la raíz del proyecto para resolver `postman/fixtures/s5-prueba.png`. Incluye 23 solicitudes principales, 10 consultas auxiliares CSRF y 32 aserciones. Crea datos de prueba; usar una base separada para las verificaciones automatizadas.
+
+### Revisión final de dependencias de Semana 5
+
+Se fijan Logback 1.6.5 (core y classic) y json-smart 2.6.1 (alcance de pruebas). La regresión de json-smart comprueba el rechazo de un carácter 0x1A seguido de contenido inválido. Las fuentes del fabricante son https://logback.qos.ch/news.html y https://github.com/netplex/json-smart-v2/pull/305.
+
+JAXB 4.0.9 conserva un aviso de SCA sobre XXE. No se encontró una versión corregida publicada en Maven Central al revisar esta entrega. Los controladores no reciben documentos XML externos y el login de la API rechaza application/xml con HTTP 415. Esto delimita la exposición observada y no equivale a resolver la vulnerabilidad de la biblioteca. Se conserva el aviso para seguimiento.
