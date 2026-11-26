@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('Usuarios y administradores')}"><title>Usuarios y administradores · GREEGAME</title></head>
+<body><header th:replace="~{fragments :: nav}"></header>
+<main id="contenido" class="content-page admin-page"><section class="panel"><p class="eyebrow">Administración GREEGAME</p><h1>Usuarios y administradores</h1>
+
+<p th:if="${param.created}" class="message" role="status">Cuenta creada.</p>
+<p th:if="${param.saved}" class="message" role="status">Cuenta actualizada.</p>
+<p><a class="button" th:href="@{/admin/usuarios/nuevo}">Crear cuenta</a></p>
+<div class="table-scroll"><table><caption>Cuentas registradas y permisos</caption><thead><tr><th scope="col">Correo</th><th scope="col">Nombre</th><th scope="col">Nombre visible</th><th scope="col">Rol</th><th scope="col">Acción</th></tr></thead>
+<tbody><tr th:each="account : ${accounts}"><td th:text="${account.email}"></td><td th:text="${account.name}"></td><td th:text="${account.displayName}"></td><td th:text="${account.role}"></td><td><a th:href="@{/admin/usuarios/editar(email=${account.email})}">Editar</a></td></tr></tbody></table></div>
+<p class="hint">Los cambios de rol se aplican en la siguiente solicitud de la API. Para actualizar el menú web, inicia sesión nuevamente. No puedes retirar tu propio rol de administrador.</p>
+</section></main><footer th:replace="~{fragments :: footer}"></footer></body></html>

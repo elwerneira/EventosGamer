@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('Crear cuenta')}"><title>Crear cuenta · GREEGAME</title></head>
+<body><header th:replace="~{fragments :: nav}"></header>
+<main id="contenido" class="content-page admin-page"><section class="panel"><p class="eyebrow">Administración GREEGAME</p><h1>Crear cuenta</h1>
+
+<form th:action="@{/admin/usuarios/nuevo}" th:object="${form}" method="post" class="stack">
+<div th:if="${#fields.hasAnyErrors()}" class="message error" role="alert"><ul><li th:each="error : ${#fields.allErrors()}" th:text="${error}"></li></ul></div><div><label for="name">Nombre</label><input id="name" th:field="*{name}" required maxlength="80" autocomplete="name"></div>
+<div><label for="email">Correo</label><input id="email" type="email" th:field="*{email}" required maxlength="254" autocomplete="email"></div>
+<div><label for="password">Contraseña inicial</label><input id="password" name="password" type="password" required minlength="10" maxlength="64" autocomplete="new-password"><p class="hint">Entre 10 y 64 caracteres y hasta 72 bytes.</p></div>
+<div><label for="role">Rol</label><select id="role" th:field="*{role}" required><option value="USER">Usuario</option><option value="ADMIN">Administrador</option></select></div><button class="button" type="submit">Crear cuenta</button><a th:href="@{/admin/usuarios}">Volver</a></form>
+</section></main><footer th:replace="~{fragments :: footer}"></footer></body></html>

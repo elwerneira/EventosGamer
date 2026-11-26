@@ -85,6 +85,7 @@ public class WebSecurityCongig {
                 .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
                 .requestMatchers("/", "/home", "/registro", "/login", "/login.css").permitAll()
                 .requestMatchers(HttpMethod.GET, "/eventos").permitAll()
+                .requestMatchers("/admin/**").hasRole("ADMIN")
                 .anyRequest().authenticated())
             .formLogin(form -> form.loginPage("/login").defaultSuccessUrl("/eventos").permitAll())
             .logout(logout -> logout.logoutSuccessUrl("/login?logout").permitAll())

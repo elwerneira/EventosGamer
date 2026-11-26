@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('Editar cuenta')}"><title>Editar cuenta · GREEGAME</title></head>
+<body><header th:replace="~{fragments :: nav}"></header>
+<main id="contenido" class="content-page admin-page"><section class="panel"><p class="eyebrow">Administración GREEGAME</p><h1>Editar cuenta</h1>
+
+<p th:text="${email}"></p>
+<form th:action="@{/admin/usuarios/editar(email=${email})}" th:object="${form}" method="post" class="stack">
+<div th:if="${#fields.hasAnyErrors()}" class="message error" role="alert"><ul><li th:each="error : ${#fields.allErrors()}" th:text="${error}"></li></ul></div><div><label for="name">Nombre</label><input id="name" th:field="*{name}" required maxlength="80" autocomplete="name"></div>
+<div><label for="displayName">Nombre visible</label><input id="displayName" th:field="*{displayName}" required maxlength="40" autocomplete="nickname"></div>
+<div><label for="role">Rol</label><select id="role" th:field="*{role}" required><option value="USER">Usuario</option><option value="ADMIN">Administrador</option></select></div><p class="hint">El correo, la contraseña y las publicaciones se conservan.</p>
+<button class="button" type="submit">Guardar cambios</button><a th:href="@{/admin/usuarios}">Volver</a></form>
+</section></main><footer th:replace="~{fragments :: footer}"></footer></body></html>

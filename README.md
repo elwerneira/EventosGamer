@@ -185,3 +185,22 @@ Colección de Semana 5: importar `postman/GREEGAME_S5.postman_collection.json`. 
 Se fijan Logback 1.6.5 (core y classic) y json-smart 2.6.1 (alcance de pruebas). La regresión de json-smart comprueba el rechazo de un carácter 0x1A seguido de contenido inválido. Las fuentes del fabricante son https://logback.qos.ch/news.html y https://github.com/netplex/json-smart-v2/pull/305.
 
 JAXB 4.0.9 conserva un aviso de SCA sobre XXE. No se encontró una versión corregida publicada en Maven Central al revisar esta entrega. Los controladores no reciben documentos XML externos y el login de la API rechaza application/xml con HTTP 415. Esto delimita la exposición observada y no equivale a resolver la vulnerabilidad de la biblioteca. Se conserva el aviso para seguimiento.
+
+## Semana 6
+
+Gestión de cuentas en `/admin/usuarios` y `/api/admin/usuarios`, restringida a ADMIN: listar, crear y editar nombres y roles USER/ADMIN. El correo de una cuenta existente, su contraseña, perfil y publicaciones se conservan. No hay eliminación de cuentas. El administrador no puede retirar su propio rol; los cambios de roles se serializan para evitar retirar mutuamente los últimos permisos. El servicio consulta el rol actual de la base incluso ante una sesión web antigua. Los formularios y escrituras de API mantienen CSRF y el acceso API requiere JWT.
+
+Cada clase de producción tiene su test específico en `src/test/java/Informacion/Eventos`: 50 clases y 50 correspondencias, documentadas en `docs/S6/Matriz_clases_tests.csv`. Las pruebas unitarias aíslan dependencias con Mockito. Los repositorios e identidades persistentes se verifican adicionalmente con integración JPA: una interfaz de Spring Data o una entidad sin lógica no se presenta como un servicio unitario simulado. Las pruebas de regresión de semanas anteriores se conservan.
+
+Referencia de organización del docente: https://github.com/cvalverd/bdget (commit revisado `4c404d6192f631e4933938559807895629052a26`). Se mantiene la versión de pruebas administrada por Spring Boot; no se copiaron configuraciones antiguas ni archivos de conexión del ejemplo.
+
+Ejecutar desde la raíz:
+
+```powershell
+.\mvnw.cmd test
+.\mvnw.cmd test '-Dsurefire.runOrder=reversealphabetical'
+```
+
+La preparación de Semana 6 pasó 127 pruebas con H2 y 127 con MySQL en una base separada. JaCoCo registró 98,10 % de líneas, 86,18 % de ramas y 94,54 % combinada. Los controladores del frontend alcanzaron 95,54 % de líneas. Esto mide Java; no significa cobertura de HTML o CSS. Las vistas se comprueban mediante peticiones MockMvc con renderizado Thymeleaf, validación, CSRF, roles y escape de texto. El reporte local está en `target/site/jacoco/index.html` y los resultados en `target/surefire-reports`.
+
+La verificación MySQL crea datos de prueba: usar siempre una base nueva y separada de la habitual. No ejecutar las pruebas automatizadas contra cuentas o eventos personales. La entrega conserva el caso gamer y no incorpora `/recetas`.

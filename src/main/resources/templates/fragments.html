@@ -17,6 +17,7 @@
         <a sec:authorize="isAuthenticated()" th:href="@{/mis-eventos}">Mis eventos</a>
         <a sec:authorize="isAuthenticated()" th:href="@{/comunidad}">Comunidad</a>
         <a sec:authorize="isAuthenticated()" th:href="@{/perfil}">Mi perfil</a>
+        <a sec:authorize="hasRole('ADMIN')" th:href="@{/admin/usuarios}">Administrar usuarios</a>
         <a sec:authorize="!isAuthenticated()" th:href="@{/login}">Ingresar</a>
         <a sec:authorize="!isAuthenticated()" class="button small" th:href="@{/registro}">Unirme →</a>
         <form sec:authorize="isAuthenticated()" th:action="@{/logout}" method="post">

@@ -1,0 +1,14 @@
+{
+  "clases_produccion": 50,
+  "clases_con_test_especifico": 50,
+  "tests_ejecutados": 127,
+  "fallos": 0,
+  "errores": 0,
+  "referencia_docente": "https://github.com/cvalverd/bdget",
+  "referencia_commit": "4c404d6192f631e4933938559807895629052a26",
+  "cobertura_line": 98.1,
+  "cobertura_branch": 86.18,
+  "cobertura_combinada": 94.54,
+  "controladores_frontend_line": 95.54,
+  "controladores_frontend_branch": 85.29
+}
